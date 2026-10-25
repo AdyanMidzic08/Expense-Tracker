@@ -1,6 +1,5 @@
 // app/layout.tsx
-import home from "./page.tsx";
-
+import "./global.css";
 export default function DashboardLayout({
   children,
 }: {
@@ -9,7 +8,6 @@ export default function DashboardLayout({
   return (
     <html lang="en">
       <body>
-        <home />
         <main>{children}</main>
       </body>
     </html>
