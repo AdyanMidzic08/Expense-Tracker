@@ -64,7 +64,7 @@ export default function Navbar({ children }: PropsWithChildren) {
             </AriaDialogTrigger>
 
             {/* 3. Der Titel steht jetzt unten im Code und rückt damit nach Rechts */}
-            <h1 className="font-bold text-lg text-gray-900 pr-2">Expense Tracker</h1>
+            <a href="/"><h1 className="font-bold text-lg text-gray-900 pr-2">Expense Tracker</h1></a>
 
         </header>
     );
