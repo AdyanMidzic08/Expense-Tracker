@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Payment } from '@/types'; // Adjust the import path if your types file is located elsewhere
+import { Payment } from '@/types';
 
 export default function PaymentsPage() {
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -48,9 +48,8 @@ export default function PaymentsPage() {
     }
   };
 
-  // Handle payment editing (placeholder for your edit logic / route)
+  // Handle payment editing redirection
   const handleEdit = (id: number) => {
-    // Redirect or open a modal for editing
     window.location.href = `/payments/edit/${id}`;
   };
 
@@ -142,7 +141,7 @@ export default function PaymentsPage() {
                               <button
                                 onClick={() => handleEdit(payment.id)}
                                 title="Edit Payment"
-                                className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                                className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all cursor-pointer"
                               >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                   <path
@@ -157,7 +156,7 @@ export default function PaymentsPage() {
                               <button
                                 onClick={() => handleDelete(payment.id)}
                                 title="Delete Payment"
-                                className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
+                                className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all cursor-pointer"
                               >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                   <path

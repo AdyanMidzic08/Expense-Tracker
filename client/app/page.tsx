@@ -1,4 +1,5 @@
 "use client";
+import { Category } from "@/types";
 import { useEffect, useState } from "react";
 
 export interface Payment {
@@ -12,14 +13,16 @@ export interface Payment {
 
 export default function Home() {
     const [payments, setPayments] = useState<Payment[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    // Fetch payments on mount
     useEffect(() => {
       fetch("http://localhost:3001/api/payments")
         .then((response) => {
           if(!response.ok){
-              throw new Error("ERROR by Loading");
+              throw new Error("Failed to load payments");
           }
           return response.json();
         })  
@@ -33,9 +36,28 @@ export default function Home() {
         });
     }, []);
 
+    // Fetch categories on mount (Added [] dependency array to prevent infinite loops)
+    useEffect(() => {
+      fetch('http://localhost:3001/api/categories')
+      .then((response) => {
+          if(!response.ok) {
+            throw new Error("Failed to load categories")
+          }
+          return response.json();
+      })
+      .then((data) => {
+          setCategories(data);
+          setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      });
+    }, []);
+
   function loadRecentPaymentsFromDatabase() {
       if(loading) {
-        return <div className="p-6 text-slate-500">Lade Zahlungen...</div>;
+        return <div className="p-6 text-slate-500">Loading payments...</div>;
       }
 
       if(error) {
@@ -109,6 +131,12 @@ export default function Home() {
     return <p className="text-3xl font-bold text-slate-900 mt-2">{countOfInvoices}</p>;
   }
 
+  function getTotalCategories() {
+    return (
+      <p className="text-3xl font-bold text-slate-900 mt-2">{categories.length}</p>
+    );
+  }
+
   return (
     <div className="flex flex-col w-full">
       {/* Top Header */}
@@ -137,7 +165,7 @@ export default function Home() {
           </div>
           <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
             <p className="text-sm font-medium text-slate-500">Active Categories</p>
-            <p className="text-3xl font-bold text-slate-900 mt-2">8</p>
+            {getTotalCategories()}
             <span className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full inline-block mt-3">Maintained</span>
           </div>
         </div>
