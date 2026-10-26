@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import pool from './config/db.js';
 import type { ResultSetHeader } from 'mysql2';
+import { error } from 'node:console';
 
 dotenv.config();
 
@@ -80,6 +81,46 @@ app.get('/api/payments', async (req, res) => {
     res.json(rows);
   } catch (error) {
     console.error(error);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+app.get('/api/payments/:id', async (req,res) => {
+  try {
+    const { id } = req.params;
+    const [rows]: any = await pool.query('SELECT * FROM payments WHERE id = ?', [id]);
+
+    if(rows.length === 0) {
+      return res.status(404).json({error: "Payment not Found"})
+    }
+
+    res.json(rows[0])
+
+
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({error: "Database error"})
+  }
+})
+
+app.put('/api/payments/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { client, amount, status } = req.body;
+
+    const [result]: any = await pool.query(
+      'update payments set client = ?, amount = ?, status = ? WHERE id = ?',
+      [client, amount, status, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Payment not found' });
+    }
+
+    res.json({ message: 'Payment updated successfully' });
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Database error' });
   }
 });
