@@ -13,7 +13,7 @@ export interface Payment {
 
 export default function Home() {
 
-    const [payments,setPayments] = useState([]);
+    const [payments,setPayments] = useState<Payment[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -93,7 +93,19 @@ export default function Home() {
     );
   }
 
+  function getTotalPendingInvoices() {
+    let countOfInvoices = 0;
 
+    payments.forEach(payment => {
+      if(payment.status === 'Pending') {
+        countOfInvoices++;
+      }
+    });
+        
+    return (
+        <p className="text-3xl font-bold text-slate-900 mt-2">{countOfInvoices}</p>
+    );
+  }
 
   return (
     <div className="flex h-screen bg-slate-50 text-slate-800 font-sans">
@@ -161,7 +173,7 @@ export default function Home() {
             </div>
             <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
               <p className="text-sm font-medium text-slate-500">Pending Invoices</p>
-              <p className="text-3xl font-bold text-slate-900 mt-2">3</p>
+              {getTotalPendingInvoices()} 
               <span className="text-xs font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full inline-block mt-3">Due soon</span>
             </div>
             <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">

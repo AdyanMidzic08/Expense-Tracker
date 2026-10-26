@@ -25,6 +25,11 @@ const apiInfo = {
       path: "/api/payments",
       method: "GET",
       description: "Retrieves all payment records from the database"
+    },
+    {
+      path: "/api/categories",
+      method: "GET",
+      description: "Retrieves all categories records from the database"
     }
   ]
 };
@@ -77,6 +82,16 @@ app.get('/api/payments', async (req, res) => {
     res.status(500).json({ error: 'Database error' });
   }
 });
+
+app.get('/api/categories', async (req,res) => {
+  try {
+    const[rows] = await pool.query('select * from categories');
+    res.json(rows);
+  }catch (error) {
+    console.error(error);
+    res.status(500).json({error: "Database error"})
+  } 
+})
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
