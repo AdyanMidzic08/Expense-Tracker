@@ -12,6 +12,8 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql # Persists database data so it isn't lost when stopped
       - ./server/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      #- ./server/testData.sql:/docker-entrypoint-initdb.d/testData.sql #only if u want TestData for ur project
+
 
   # 2. The Backend Server Service
   server:
