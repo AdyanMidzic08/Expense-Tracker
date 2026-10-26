@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { Category } from "@/types";
 import { useEffect, useState } from "react";
 
@@ -8,6 +8,7 @@ export interface Payment {
   client: string;
   amount: number;
   status: 'Paid' | 'Pending' | 'Cancelled';
+  category_id?: number;
   created_at?: string;
 }
 
@@ -36,7 +37,7 @@ export default function Home() {
         });
     }, []);
 
-    // Fetch categories on mount (Added [] dependency array to prevent infinite loops)
+    // Fetch categories on mount
     useEffect(() => {
       fetch('http://localhost:3001/api/categories')
       .then((response) => {
@@ -64,7 +65,6 @@ export default function Home() {
         return <div className="p-6 text-rose-600">Error: {error}</div>;
       }
 
-      // Limit to the first 3 payments
       const displayedPayments = payments.slice(0, 3);
       const hasMore = payments.length > 3;
 
@@ -72,33 +72,33 @@ export default function Home() {
         <div>
           <table className="w-full text-left border-collapse text-sm">
             <thead>
-              <tr className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
-                  <th className="py-3 px-6">Invoice ID</th>
-                  <th className="py-3 px-6">Client</th>
-                  <th className="py-3 px-6">Amount</th>
-                  <th className="py-3 px-6">Status</th>
-              </tr>
+              <tr className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200"><th className="py-3 px-6">Category</th><th className="py-3 px-6">Client</th><th className="py-3 px-6">Amount</th><th className="py-3 px-6">Status</th></tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {displayedPayments.map((payment) => (
-                <tr key={payment.id} className="hover:bg-slate-50/50">
-                  <td className="py-4 px-6 font-medium text-slate-900">#{payment.invoice_id}</td>
-                  <td className="py-4 px-6 text-slate-600">{payment.client}</td>
-                  <td className="py-4 px-6 text-slate-900 font-medium">${payment.amount}</td>
-                  <td className="py-4 px-6">
-                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                      payment.status === 'Paid' ? 'bg-emerald-50 text-emerald-700' : 
-                      payment.status === 'Pending' ? 'bg-amber-50 text-amber-700' : 'bg-rose-50 text-rose-700'
-                    }`}>
-                      {payment.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
+              {displayedPayments.map((payment: any) => {
+                const matchedCategory = categories.find(cat => cat.id === payment.category_id);
+
+                return (
+                  <tr key={payment.id} className="hover:bg-slate-50/50">
+                    <td className="py-4 px-6 font-medium text-slate-900">
+                      {matchedCategory ? matchedCategory.name : 'Allgemein'}
+                    </td>
+                    <td className="py-4 px-6 text-slate-600">{payment.client}</td>
+                    <td className="py-4 px-6 text-slate-900 font-medium">${payment.amount}</td>
+                    <td className="py-4 px-6">
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                        payment.status === 'Paid' ? 'bg-emerald-50 text-emerald-700' : 
+                        payment.status === 'Pending' ? 'bg-amber-50 text-amber-700' : 'bg-rose-50 text-rose-700'
+                      }`}>
+                        {payment.status}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
 
-          {/* Information banner if there are more than 3 payments */}
           {hasMore && (
             <div className="p-4 bg-slate-50 border-t border-slate-200 text-center text-xs text-slate-500 flex items-center justify-between px-6">
               <span>Showing 3 of {payments.length} recent invoices.</span>
@@ -139,7 +139,6 @@ export default function Home() {
 
   return (
     <div className="flex flex-col w-full">
-      {/* Top Header */}
       <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-10">
         <h1 className="text-xl font-bold text-slate-900">Dashboard</h1>
         <div className="flex items-center gap-4">
@@ -149,9 +148,7 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Dashboard Content */}
       <div className="p-8 space-y-8 max-w-7xl w-full mx-auto">
-        {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
             <p className="text-sm font-medium text-slate-500">Total Revenue</p>
@@ -170,7 +167,6 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Recent Activity / Table Section */}
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="p-6 border-b border-slate-200 flex justify-between items-center">
             <h2 className="font-bold text-slate-900 text-base">Recent Invoices</h2>
