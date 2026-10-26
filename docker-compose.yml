@@ -22,6 +22,10 @@ services:
     restart: always
     ports:
       - "3001:3001"                # Maps your backend port externally
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    command: npm run dev
     env_file:
       - ./server/.env              # Safely loads your local environment variables without leaking them
     depends_on:
