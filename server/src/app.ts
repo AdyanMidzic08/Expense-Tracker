@@ -2,7 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import pool from './config/db.js';
-import { requestLogger } from "./middleware/logger.js";
 
 dotenv.config();
 
@@ -11,8 +10,6 @@ const PORT = process.env.PORT || 3001;
 
 app.use(cors());
 app.use(express.json());
-
-app.use(requestLogger); //docker-compose logs -f server
 
 const apiInfo = {
   name: "Expense Tracker API",

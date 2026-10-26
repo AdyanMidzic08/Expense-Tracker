@@ -8,7 +8,9 @@
     "dev": "tsx watch src/app.ts",
     "build": "tsc",
     "start": "node dist/app.js",
-    "testApi": "docker compose logs -f --tail=0 server"
+    "testApi:run": "tsx src/middleware/testApi.ts",
+    "testApi": "docker compose exec server npm run testApi:run",
+    "testApi:watch": "docker compose exec server npm run testApi:run -- --watch"
   },
   "keywords": [],
   "author": "",
