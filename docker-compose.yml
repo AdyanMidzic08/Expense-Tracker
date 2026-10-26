@@ -1,0 +1,46 @@
+services:
+  # 1. The Database Service (MySQL)
+  db:
+    image: mysql:8.0               # Official MySQL 8 image from Docker Hub
+    container_name: expense_mysql  # Name of the container displayed in Docker
+    restart: always                # Automatically restarts the container if it crashes
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'yes'
+      MYSQL_DATABASE: expense_tracker # Automatically creates this database on first launch
+    ports:
+      - "3306:3306"                # Maps port 3306 on your host machine to port 3306 inside the container
+    volumes:
+      - mysql_data:/var/lib/mysql # Persists database data so it isn't lost when stopped
+      - ./server/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+  # 2. The Backend Server Service
+  server:
+    build: ./server                # Instructs Docker to use the Dockerfile inside the "server" folder
+    container_name: expense_server
+    restart: always
+    ports:
+      - "3001:3001"                # Maps your backend port externally
+    env_file:
+      - ./server/.env              # Safely loads your local environment variables without leaking them
+    depends_on:
+      - db                         # Waits for the database to start before launching the server
+
+  client:
+     build: ./client              # Uses the Dockerfile inside the "client" folder
+     container_name: expense_client
+     restart: always
+     ports:
+       - "3000:3000"              # Next.js standard port
+     environment:
+       - WATCHPACK_POLLING=true   # Wichtig für macOS, damit File-Änderungen im Container ankommen
+     volumes:
+       - ./client:/app            # Spiegelt deinen lokalen Ordner in den Container
+       - /app/node_modules        # Verhindert, dass lokale node_modules die Container-Module überschreiben
+       - /app/.next               # Hält den Build-Cache im Container sauber
+     depends_on:
+       - server                   # Waits for the server to be ready
+
+
+# Defines the persistent storage volume for MySQL data
+volumes:
+  mysql_data:
