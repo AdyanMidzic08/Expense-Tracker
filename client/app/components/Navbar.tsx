@@ -1,71 +1,103 @@
 "use client";
 
-import type { PropsWithChildren } from "react";
-import { X as CloseIcon, Menu02 } from "@untitledui/icons";
-import {
-    Button as AriaButton,
-    Dialog as AriaDialog,
-    DialogTrigger as AriaDialogTrigger,
-    Modal as AriaModal,
-    ModalOverlay as AriaModalOverlay,
-} from "react-aria-components";
-import { cx } from "@/utils/cx";
+import { useState } from "react";
 
-export default function Navbar({ children }: PropsWithChildren) {
-    return (
-        <header className="flex h-14 items-center justify-between border-b border-gray-200 bg-white p-3 pl-4">
+export default function Navbar({ children }: { children: React.ReactNode }) {
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  return (
+    <div className="flex h-screen bg-slate-50 text-slate-800 font-sans overflow-hidden">
+      
+      {/* Sidebar */}
+      <aside
+        className={`${
+          isCollapsed ? "w-20" : "w-64"
+        } bg-white border-r border-slate-200 flex flex-col justify-between p-4 transition-all duration-300 relative z-20`}
+      >
+        <div>
+          {/* Logo & Toggle Button */}
+          <div className="flex items-center justify-between mb-10 px-2">
+            {!isCollapsed && (
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-md shadow-indigo-200">
+                  .
+                </div>
+                <span className="font-semibold text-lg tracking-tight text-slate-900">
+                  Test's Payments
+                </span>
+              </div>
+            )}
             
-            {/* 1. Der Trigger (Menü-Icon) steht jetzt oben im Code und rückt damit nach Links */}
-            <AriaDialogTrigger>
-                <AriaButton
-                    aria-label="Expand navigation menu"
-                    className="group relative flex items-center justify-center rounded-lg bg-white p-2 text-gray-500 hover:bg-gray-50 hover:text-gray-700 outline-none focus-visible:ring-2 focus-visible:ring-gray-300"
-                >
-                    <Menu02 className="size-6 transition duration-200 ease-in-out group-aria-expanded:opacity-0" />
-                    <CloseIcon className="absolute size-6 opacity-0 transition duration-200 ease-in-out group-aria-expanded:opacity-100" />
-                </AriaButton>
+            {/* Collapse Toggle Button */}
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors mx-auto"
+              title="Toggle Sidebar"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d={isCollapsed ? "M13 5l7 7-7 7M5 5l7 7-7 7" : "M11 19l-7-7 7-7m8 14l-7-7 7-7"}
+                />
+              </svg>
+            </button>
+          </div>
 
-                <AriaModalOverlay
-                    isDismissable
-                    className={({ isEntering, isExiting }) =>
-                        cx(
-                            "fixed inset-0 z-50 flex cursor-pointer bg-black/50 pr-16 backdrop-blur-sm",
-                            isEntering && "duration-300 ease-in-out animate-in fade-in",
-                            isExiting && "duration-200 ease-in-out animate-out fade-out",
-                        )
-                    }
-                >
-                    {({ state }) => (
-                        <>
-                            {/* 2. Hier ist die neue, saubere Slide-Animation eingefügt */}
-                            <AriaModal 
-                                className={({ isEntering, isExiting }) => cx(
-                                    "h-full w-full max-w-sm cursor-auto bg-white shadow-xl will-change-transform",
-                                    isEntering && "duration-300 ease-out animate-in slide-in-from-left-full",
-                                    isExiting && "duration-200 ease-in animate-out slide-out-to-left-full"
-                                )}
-                            >
-                                <AriaDialog className="h-dvh outline-none p-4">
-                                    {children}
-                                </AriaDialog>
-                            </AriaModal>
+          {/* Navigation Links */}
+          <nav className="space-y-1.5">
+            <a
+              href="/"
+              className="flex items-center gap-3 px-3.5 py-2.5 rounded-lg bg-indigo-50 text-indigo-600 font-medium text-sm transition-colors"
+            >
+              <svg className="w-5 h-5 min-w-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+              </svg>
+              {!isCollapsed && <span>Dashboard</span>}
+            </a>
 
-                            {/* Der Schließen-Button (X) für den dunklen Hintergrund */}
-                            <AriaButton
-                                aria-label="Close navigation menu"
-                                onPress={() => state.close()}
-                                className="fixed top-2.5 right-3 flex cursor-pointer items-center justify-center rounded-lg p-2 text-white/70 hover:bg-white/10 hover:text-white outline-none focus-visible:ring-2 focus-visible:ring-white"
-                            >
-                                <CloseIcon className="size-6" />
-                            </AriaButton>
-                        </>
-                    )}
-                </AriaModalOverlay>
-            </AriaDialogTrigger>
+            <a
+              href="/payments"
+              className="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 font-medium text-sm transition-colors"
+            >
+              <svg className="w-5 h-5 min-w-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              {!isCollapsed && <span>Payments</span>}
+            </a>
 
-            {/* 3. Der Titel steht jetzt unten im Code und rückt damit nach Rechts */}
-            <a href="/"><h1 className="font-bold text-lg text-gray-900 pr-2">Expense Tracker</h1></a>
+            <a
+              href="/categories"
+              className="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-slate-600 hover:bg-slate-100 font-medium text-sm transition-colors"
+            >
+              <svg className="w-5 h-5 min-w-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+              {!isCollapsed && <span>Categories</span>}
+            </a>
+          </nav>
+        </div>
 
-        </header>
-    );
+        {/* User Profile Footer */}
+        <div className="pt-4 border-t border-slate-100 flex items-center gap-3 overflow-hidden">
+          <div className="h-9 w-9 min-w-[36px] rounded-full bg-slate-200 flex items-center justify-center font-medium text-slate-600 text-sm">
+            AM
+          </div>
+rising          {!isCollapsed && (
+            <div className="overflow-hidden">
+              <p className="text-sm font-medium text-slate-900 truncate">Test's</p>
+              <p className="text-xs text-slate-500 truncate">Workspace</p>
+            </div>
+          )}
+        </div>
+      </aside>
+
+      {/* Main Content Container */}
+      <main className="flex-1 flex flex-col overflow-y-auto">
+        {children}
+      </main>
+
+    </div>
+  );
 }
