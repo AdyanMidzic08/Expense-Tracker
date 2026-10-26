@@ -5,6 +5,7 @@ import pool from './config/db.js';
 import type { ResultSetHeader } from 'mysql2';
 import { error } from 'node:console';
 import path from 'node:path';
+import { text } from 'node:stream/consumers';
 
 dotenv.config();
 
@@ -45,6 +46,11 @@ const apiInfo = {
       description: "adds a payment to the database"
     },
     {
+      path: "api/payments/:id",
+      method: "DELETE",
+      description: "removes a payment from the database"
+    },
+    {
       path: "/api/categories",
       method: "GET",
       description: "Retrieves all categories records from the database"
@@ -81,6 +87,7 @@ app.get('/', (req, res) => {
                 <span class="px-2.5 py-1 text-xs font-bold rounded ${
                 ep.method === 'GET' ? 'bg-sky-500/10 text-sky-400 border border-sky-500/20' :
                 ep.method === 'PUT' ? 'bg-blue-600/10 text-blue-500 border border-blue-600/20' :
+                ep.method === 'DELETE' ? 'bg-red-500/10 text-red-400 border border-red-600/20' : 
                 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
                 }">${ep.method}</span>
                 <code class="text-sm font-mono text-slate-200">${ep.path}</code>
@@ -170,6 +177,28 @@ app.post('/api/payments', async (req,res) => {
   } catch (error) {
     console.error('Database error during payment insertion:', error);
     res.status(500).json({ error: 'Database error' });
+  }
+})
+
+app.delete('/api/payments/:id', async (req,res) => {
+
+  try {
+    const { id } = req.params;
+
+    const [result]: any = await pool.query(
+      'delete from payments where id = ?',
+      [id]
+    );
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({ error: 'Payment not found' });
+      }
+
+      res.json({ message: 'Payment deleted successfully' });
+
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Database error' });
   }
 })
 

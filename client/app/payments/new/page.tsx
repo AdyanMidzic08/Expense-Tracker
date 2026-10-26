@@ -1,7 +1,7 @@
 'use client';
 
 import { Category} from '@/types';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { METHODS } from 'node:http';
 
@@ -100,6 +100,44 @@ export default function NewPayment() {
         setIsSubmitting(false);
     }
   };
+
+  const handleDelete = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setErrorMessage(null);
+    setSuccessMessage(false);
+
+        try {
+        const response = await fetch(`http://localhost:3001/api/payments`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                invoice_id: formData.invoice_id,
+                client: formData.client,
+                amount: parseFloat(formData.amount),
+                status: formData.status,
+                // category: formData.category // Uncomment if your payments table supports category_id
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to delete the payment from the database.');
+        }
+        setSuccessMessage(true);
+        
+        setTimeout(() => {
+            router.push('/');
+        },1200);
+
+    } catch (error: any) {
+      console.error('Submission error:', error);
+      setErrorMessage(error.message || 'An unexpected error occurred.');
+    } finally {
+        setIsSubmitting(false);
+    }
+  }
 
   return (
     <div className="flex h-screen bg-slate-50 text-slate-800 font-sans">
