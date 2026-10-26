@@ -1,4 +1,5 @@
 "use client"
+import { toASCII } from "punycode";
 import { useEffect, useState } from "react";
 
 export interface Payment {
@@ -78,6 +79,20 @@ export default function Home() {
       );
   }
 
+  function getTotalRevenue() {
+    let totalRevenue = 0;
+
+    payments.forEach(payment => {
+      if (payment.status === 'Paid') {
+        totalRevenue += Number(payment.amount);
+      }
+    });
+
+    return (
+      <p className="text-3xl font-bold text-slate-900 mt-2">{totalRevenue.toFixed(2)}</p>
+    );
+  }
+
 
 
   return (
@@ -141,7 +156,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
               <p className="text-sm font-medium text-slate-500">Total Revenue</p>
-              <p className="text-3xl font-bold text-slate-900 mt-2">$12,450.00</p>
+              {getTotalRevenue()}
               <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full inline-block mt-3">+12% this month</span>
             </div>
             <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
