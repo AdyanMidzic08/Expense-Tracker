@@ -33,7 +33,7 @@ export default function Home() {
         });
     }, []);
 
-  function loadAllPaymentsFromDatabase() {
+  function loadRecentPaymentsFromDatabase() {
       if(loading) {
         return <div className="p-6 text-slate-500">Lade Zahlungen...</div>;
       }
@@ -42,34 +42,50 @@ export default function Home() {
         return <div className="p-6 text-rose-600">Error: {error}</div>;
       }
 
+      // Limit to the first 3 payments
+      const displayedPayments = payments.slice(0, 3);
+      const hasMore = payments.length > 3;
+
       return (
-        <table className="w-full text-left border-collapse text-sm">
-          <thead>
-            <tr className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
-                <th className="py-3 px-6">Invoice ID</th>
-                <th className="py-3 px-6">Client</th>
-                <th className="py-3 px-6">Amount</th>
-                <th className="py-3 px-6">Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {payments.map((payment) => (
-              <tr key={payment.id} className="hover:bg-slate-50/50">
-                <td className="py-4 px-6 font-medium text-slate-900">#{payment.invoice_id}</td>
-                <td className="py-4 px-6 text-slate-600">{payment.client}</td>
-                <td className="py-4 px-6 text-slate-900 font-medium">${payment.amount}</td>
-                <td className="py-4 px-6">
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                    payment.status === 'Paid' ? 'bg-emerald-50 text-emerald-700' : 
-                    payment.status === 'Pending' ? 'bg-amber-50 text-amber-700' : 'bg-rose-50 text-rose-700'
-                  }`}>
-                    {payment.status}
-                  </span>
-                </td>
+        <div>
+          <table className="w-full text-left border-collapse text-sm">
+            <thead>
+              <tr className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+                  <th className="py-3 px-6">Invoice ID</th>
+                  <th className="py-3 px-6">Client</th>
+                  <th className="py-3 px-6">Amount</th>
+                  <th className="py-3 px-6">Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {displayedPayments.map((payment) => (
+                <tr key={payment.id} className="hover:bg-slate-50/50">
+                  <td className="py-4 px-6 font-medium text-slate-900">#{payment.invoice_id}</td>
+                  <td className="py-4 px-6 text-slate-600">{payment.client}</td>
+                  <td className="py-4 px-6 text-slate-900 font-medium">${payment.amount}</td>
+                  <td className="py-4 px-6">
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                      payment.status === 'Paid' ? 'bg-emerald-50 text-emerald-700' : 
+                      payment.status === 'Pending' ? 'bg-amber-50 text-amber-700' : 'bg-rose-50 text-rose-700'
+                    }`}>
+                      {payment.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          {/* Information banner if there are more than 3 payments */}
+          {hasMore && (
+            <div className="p-4 bg-slate-50 border-t border-slate-200 text-center text-xs text-slate-500 flex items-center justify-between px-6">
+              <span>Showing 3 of {payments.length} recent invoices.</span>
+              <a href="/payments" className="font-medium text-indigo-600 hover:text-indigo-700">
+                View all payments &rarr;
+              </a>
+            </div>
+          )}
+        </div>
       );
   }
 
@@ -133,7 +149,7 @@ export default function Home() {
             <a href="/payments" className="text-sm font-medium text-indigo-600 hover:text-indigo-700">View all &rarr;</a>
           </div>
           <div className="overflow-x-auto">
-              {loadAllPaymentsFromDatabase()}
+              {loadRecentPaymentsFromDatabase()}
           </div>
         </div>
       </div>

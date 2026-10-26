@@ -1,8 +1,9 @@
 'use client';
 
-import { Category, Payment } from '@/types';
+import { Category} from '@/types';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { METHODS } from 'node:http';
 
 export default function NewPayment() {
   const router = useRouter();
@@ -16,6 +17,11 @@ export default function NewPayment() {
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  
+  // States for backend submission handling
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState(false);
 
   useEffect(() => {
     fetch('http://localhost:3001/api/categories')
@@ -31,12 +37,12 @@ export default function NewPayment() {
 
     fetch('http://localhost:3001/api/payments')
       .then((res) => res.json())
-      .then((payments: Payment[]) => {
+      .then((payments) => {
         const year = new Date().getFullYear();
         
         if (payments && payments.length > 0) {
           let maxNum = 0;
-          payments.forEach((p) => {
+          payments.forEach((p: any) => {
             const parts = p.invoice_id.split('-');
             const lastPart = parseInt(parts[parts.length - 1], 10);
             if (!isNaN(lastPart) && lastPart > maxNum) {
@@ -57,10 +63,42 @@ export default function NewPayment() {
       });
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form data captured (Frontend only):', formData);
+    setIsSubmitting(true);
+    setErrorMessage(null);
+    setSuccessMessage(false);
 
+    try {
+        const response = await fetch(`http://localhost:3001/api/payments`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                invoice_id: formData.invoice_id,
+                client: formData.client,
+                amount: parseFloat(formData.amount),
+                status: formData.status,
+                // category: formData.category // Uncomment if your payments table supports category_id
+            }),
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to save the payment to the database.');
+        }
+        setSuccessMessage(true);
+        
+        setTimeout(() => {
+            router.push('/');
+        },1200);
+
+    } catch (error: any) {
+      console.error('Submission error:', error);
+      setErrorMessage(error.message || 'An unexpected error occurred.');
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   return (
@@ -168,12 +206,15 @@ export default function NewPayment() {
                 >
                   Cancel
                 </a>
-                <button
-                  type="submit"
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium shadow-sm transition-all"
+            
+            <button
+                type="submit"
+                disabled={isSubmitting}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-lg text-sm font-medium shadow-sm transition-all disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
                 >
-                  Save Payment
-                </button>
+                {isSubmitting ? 'Saving...' : 'Save Payment'}
+            </button>
+
               </div>
 
             </form>

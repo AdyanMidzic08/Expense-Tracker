@@ -15,3 +15,5 @@ CREATE TABLE IF NOT EXISTS categories (
   name VARCHAR(255) NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE payments ADD CONSTRAINT unique_invoice_id UNIQUE (invoice_id);
