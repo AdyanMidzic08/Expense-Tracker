@@ -1,9 +1,11 @@
 'use client';
 
-import { Category } from '@/types';
+import { Category, Payment } from '@/types';
 import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function NewPayment() {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     invoice_id: '',
     client: '',
@@ -15,36 +17,56 @@ export default function NewPayment() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
 
-  // Kategorien sicher vom Backend laden
   useEffect(() => {
     fetch('http://localhost:3001/api/categories')
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("ERROR by Loading");
-        }
-        return response.json();
-      })
+      .then((res) => res.json())
       .then((data) => {
         setCategories(data);
         setLoadingCategories(false);
       })
       .catch((err) => {
-        console.error("ERROR NO API FOUND:", err);
+        console.error("Error loading categories:", err);
         setLoadingCategories(false);
+      });
+
+    fetch('http://localhost:3001/api/payments')
+      .then((res) => res.json())
+      .then((payments: Payment[]) => {
+        const year = new Date().getFullYear();
+        
+        if (payments && payments.length > 0) {
+          let maxNum = 0;
+          payments.forEach((p) => {
+            const parts = p.invoice_id.split('-');
+            const lastPart = parseInt(parts[parts.length - 1], 10);
+            if (!isNaN(lastPart) && lastPart > maxNum) {
+              maxNum = lastPart;
+            }
+          });
+
+          const nextNumString = String(maxNum + 1).padStart(3, '0');
+          setFormData((prev) => ({ ...prev, invoice_id: `INV-${year}-${nextNumString}` }));
+        } else {
+          setFormData((prev) => ({ ...prev, invoice_id: `INV-${year}-001` }));
+        }
+      })
+      .catch((err) => {
+        console.error("Error generating invoice ID:", err);
+
+        setFormData((prev) => ({ ...prev, invoice_id: `INV-2026-001` }));
       });
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Form data captured (Frontend only):', formData);
+
   };
 
   return (
     <div className="flex h-screen bg-slate-50 text-slate-800 font-sans">
-      {/* Main Content Area */}
       <main className="flex-1 flex flex-col overflow-y-auto">
         
-        {/* Top Header */}
         <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-10">
           <h1 className="text-xl font-bold text-slate-900">New Invoice</h1>
           <a href="/" className="text-sm font-medium text-slate-600 hover:text-slate-900">
@@ -52,26 +74,23 @@ export default function NewPayment() {
           </a>
         </header>
 
-        {/* Form Content */}
         <div className="p-8 max-w-3xl w-full mx-auto">
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-8">
             <h2 className="text-lg font-bold text-slate-900 mb-6">Create New Payment Record</h2>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               
-              {/* Invoice ID & Client */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
-                    Invoice ID
+                    Invoice ID (Auto-Generated)
                   </label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. 1001"
+                    readOnly
                     value={formData.invoice_id}
-                    onChange={(e) => setFormData({ ...formData, invoice_id: e.target.value })}
-                    className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 text-sm transition-all"
+                    className="w-full px-4 py-2.5 bg-slate-100 border border-slate-200 rounded-lg text-slate-600 text-sm cursor-not-allowed"
                   />
                 </div>
 
@@ -90,7 +109,6 @@ export default function NewPayment() {
                 </div>
               </div>
 
-              {/* Amount & Status */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
@@ -123,7 +141,6 @@ export default function NewPayment() {
                 </div>
               </div>
 
-              {/* Category selection */}
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
                   Category
@@ -144,7 +161,6 @@ export default function NewPayment() {
                 </select>
               </div>
 
-              {/* Action Buttons */}
               <div className="flex items-center justify-end gap-4 pt-4 border-t border-slate-100">
                 <a
                   href="/"
@@ -164,7 +180,6 @@ export default function NewPayment() {
           </div>
         </div>
       </main>
-
     </div>
   );
 }
