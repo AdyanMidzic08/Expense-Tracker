@@ -1,7 +1,4 @@
-INSERT INTO payments (invoice_id, client, amount, status) VALUES
-('INV-2026-001', 'Max Mustermann', 149.99, 'Paid'),
-('INV-2026-002', 'Tech Solutions GmbH', 1250.00, 'Pending'),
-('INV-2026-003', 'Anna Schmidt', 75.50, 'Cancelled');
+USE expense_tracker;
 
 INSERT INTO categories (name) VALUES 
 ('Software Development'),
@@ -12,3 +9,8 @@ INSERT INTO categories (name) VALUES
 ('Hardware'),
 ('Maintenance'),
 ('Support');
+
+INSERT INTO payments (invoice_id, client, amount, status, category_id) VALUES
+('INV-2026-001', 'Max Mustermann', 149.99, 'Paid', 1),
+('INV-2026-002', 'Tech Solutions GmbH', 1250.00, 'Pending', 3),
+('INV-2026-003', 'Anna Schmidt', 75.50, 'Cancelled', 2);

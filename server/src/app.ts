@@ -153,17 +153,17 @@ app.put('/api/payments/:id', async (req, res) => {
   }
 });
 
-app.post('/api/payments', async (req,res) => {
+app.post('/api/payments', async (req, res) => {
   try {
-    const {invoice_id , client, amount, status} = req.body;
+    const { invoice_id, client, amount, status, category_id } = req.body;
 
-    if(!invoice_id || !client || amount === undefined) {
-      return res.status(500).json({error: "Missing required fields (invoice_id, client, amount)"});
+    if (!invoice_id || !client || amount === undefined) {
+      return res.status(500).json({ error: "Missing required fields (invoice_id, client, amount)" });
     }
 
     const [result] = await pool.query<ResultSetHeader>(
-      'insert into payments (invoice_id, client, amount, status) values(?,?,?,?)',
-      [invoice_id,client,amount,status || 'Pending']
+      'insert into payments (invoice_id, client, amount, status, category_id) values(?,?,?,?,?)',
+      [invoice_id, client, amount, status || 'Pending', category_id || null]
     );
 
     res.status(201).json({
@@ -171,14 +171,15 @@ app.post('/api/payments', async (req,res) => {
       invoice_id,
       client,
       amount,
-      status: status || 'Pending'
-    })
-
+      status: status || 'Pending',
+      category_id: category_id || null
+    });
   } catch (error) {
     console.error('Database error during payment insertion:', error);
     res.status(500).json({ error: 'Database error' });
   }
-})
+});
+
 
 app.delete('/api/payments/:id', async (req,res) => {
 

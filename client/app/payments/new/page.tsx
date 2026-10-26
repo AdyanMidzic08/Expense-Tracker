@@ -70,19 +70,19 @@ export default function NewPayment() {
     setSuccessMessage(false);
 
     try {
-        const response = await fetch(`http://localhost:3001/api/payments`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                invoice_id: formData.invoice_id,
-                client: formData.client,
-                amount: parseFloat(formData.amount),
-                status: formData.status,
-                // category: formData.category // Uncomment if your payments table supports category_id
-            }),
-        });
+      const response = await fetch(`http://localhost:3001/api/payments`, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+              invoice_id: formData.invoice_id,
+              client: formData.client,
+              amount: parseFloat(formData.amount),
+              status: formData.status,
+              category_id: formData.category ? Number(formData.category) : null, // Hier angepasst
+          }),
+      });
 
         if (!response.ok) {
             throw new Error('Failed to save the payment to the database.');
@@ -91,7 +91,7 @@ export default function NewPayment() {
         
         setTimeout(() => {
             router.push('/');
-        },1200);
+        },120);
 
     } catch (error: any) {
       console.error('Submission error:', error);
