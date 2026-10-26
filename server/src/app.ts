@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import pool from './config/db.js';
+import type { ResultSetHeader } from 'mysql2';
 
 dotenv.config();
 
@@ -82,6 +83,33 @@ app.get('/api/payments', async (req, res) => {
     res.status(500).json({ error: 'Database error' });
   }
 });
+
+app.post('/api/payments', async (req,res) => {
+  try {
+    const {invoice_id , client, amount, status} = req.body;
+
+    if(!invoice_id || !client || amount === undefined) {
+      return res.status(500).json({error: "Missing required fields (invoice_id, client, amount)"});
+    }
+
+    const [result] = await pool.query<ResultSetHeader>(
+      'insert into payments (invoice_id, client, amount, status) values(?,?,?,?)',
+      [invoice_id,client,amount,status || 'Pending']
+    );
+
+    res.status(201).json({
+      id: result.insertId,
+      invoice_id,
+      client,
+      amount,
+      status: status || 'Pending'
+    })
+
+  } catch (error) {
+    console.error('Database error during payment insertion:', error);
+    res.status(500).json({ error: 'Database error' });
+  }
+})
 
 app.get('/api/categories', async (req,res) => {
   try {
