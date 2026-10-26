@@ -1,4 +1,85 @@
+"use client"
+import { useEffect, useState } from "react";
+
+export interface Payment {
+  id: number;
+  invoice_id: string;
+  client: string;
+  amount: number;
+  status: 'Paid' | 'Pending' | 'Cancelled';
+  created_at?: string;
+}
+
 export default function Home() {
+
+    const [payments,setPayments] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+      fetch("http://localhost:3001/api/payments")
+      .then((response) => {
+        if(!response){
+            throw new Error("ERROR by Loading");
+        }
+        const data = response.json();
+        console.log(data);
+
+        return data;
+      })  
+      .then((data) => {
+        setPayments(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message);
+        setLoading(false);
+      })
+    }),[];
+
+  function loadAllPaymentsFromDatabase() {
+
+      if(loading) {
+        return <h1>Lade Zahlungen...</h1>
+      }
+
+      if(error) {
+        return <h1>Error: {error}</h1>
+      }
+
+      return (
+      <table className="w-full text-left border-collapse text-sm">
+        <thead>
+          <tr className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
+              <th className="py-3 px-6">Invoice ID</th>
+              <th className="py-3 px-6">Client</th>
+              <th className="py-3 px-6">Amount</th>
+              <th className="py-3 px-6">Status</th>
+          </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100">
+            {payments.map((payment) => (
+              <tr key={payment.id} className="hover:bg-slate-50/50">
+                <td className="py-4 px-6 font-medium text-slate-900">#{payment.invoice_id}</td>
+                <td className="py-4 px-6 text-slate-600">{payment.client}</td>
+                <td className="py-4 px-6 text-slate-900 font-medium">${payment.amount}</td>
+                <td className="py-4 px-6">
+                  <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                    payment.status === 'Paid' ? 'bg-emerald-50 text-emerald-700' : 
+                    payment.status === 'Pending' ? 'bg-amber-50 text-amber-700' : 'bg-rose-50 text-rose-700'
+                  }`}>
+                    {payment.status}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+  }
+
+
+
   return (
     <div className="flex h-screen bg-slate-50 text-slate-800 font-sans">
       
@@ -53,6 +134,7 @@ export default function Home() {
         </header>
 
         {/* Dashboard Content */}
+
         <div className="p-8 space-y-8 max-w-7xl w-full mx-auto">
           
           {/* Stats Grid */}
@@ -78,33 +160,10 @@ export default function Home() {
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="p-6 border-b border-slate-200 flex justify-between items-center">
               <h2 className="font-bold text-slate-900 text-base">Recent Invoices</h2>
-              <a href="/invoices" className="text-sm font-medium text-indigo-600 hover:text-indigo-700">View all &rarr;</a>
+              <a href="/payments" className="text-sm font-medium text-indigo-600 hover:text-indigo-700">View all &rarr;</a>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse text-sm">
-                <thead>
-                  <tr className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
-                    <th className="py-3 px-6">Invoice ID</th>
-                    <th className="py-3 px-6">Client</th>
-                    <th className="py-3 px-6">Amount</th>
-                    <th className="py-3 px-6">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  <tr className="hover:bg-slate-50/50">
-                    <td className="py-4 px-6 font-medium text-slate-900">#INV-2026-001</td>
-                    <td className="py-4 px-6 text-slate-600">TechCorp GmbH</td>
-                    <td className="py-4 px-6 text-slate-900 font-medium">$1,250.00</td>
-                    <td className="py-4 px-6"><span className="px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700">Paid</span></td>
-                  </tr>
-                  <tr className="hover:bg-slate-50/50">
-                    <td className="py-4 px-6 font-medium text-slate-900">#INV-2026-002</td>
-                    <td className="py-4 px-6 text-slate-600">Design Studio Linz</td>
-                    <td className="py-4 px-6 text-slate-900 font-medium">$840.00</td>
-                    <td className="py-4 px-6"><span className="px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700">Pending</span></td>
-                  </tr>
-                </tbody>
-              </table>
+                {loadAllPaymentsFromDatabase()}
             </div>
           </div>
 
