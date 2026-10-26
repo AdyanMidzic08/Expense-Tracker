@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import pool from './config/db.js';
 import type { ResultSetHeader } from 'mysql2';
 import { error } from 'node:console';
+import path from 'node:path';
 
 dotenv.config();
 
@@ -29,10 +30,26 @@ const apiInfo = {
       description: "Retrieves all payment records from the database"
     },
     {
+      path: "api/payments/:id",
+      method: "GET",
+      description: "Retrieves one payment record from the database"
+    },
+    {
+      path: "api/payments/:id",
+      method: "PUT",
+      description: "Chnges the payment record from the database"
+    },
+    {
+      path: "api/payments",
+      method: "POST",
+      description: "adds a payment to the database"
+    },
+    {
       path: "/api/categories",
       method: "GET",
       description: "Retrieves all categories records from the database"
     }
+    
   ]
 };
 
@@ -61,7 +78,11 @@ app.get('/', (req, res) => {
           ${apiInfo.endpoints.map(ep => `
             <div class="bg-slate-950/50 border border-slate-800/80 rounded-xl p-4 flex items-center justify-between">
               <div class="flex items-center gap-3">
-                <span class="px-2.5 py-1 text-xs font-bold rounded bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">${ep.method}</span>
+                <span class="px-2.5 py-1 text-xs font-bold rounded ${
+                ep.method === 'GET' ? 'bg-sky-500/10 text-sky-400 border border-sky-500/20' :
+                ep.method === 'PUT' ? 'bg-blue-600/10 text-blue-500 border border-blue-600/20' :
+                'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                }">${ep.method}</span>
                 <code class="text-sm font-mono text-slate-200">${ep.path}</code>
               </div>
               <span class="text-xs text-slate-400 text-right">${ep.description}</span>

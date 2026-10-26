@@ -1,5 +1,9 @@
+import dotenv from 'dotenv';
+
+dotenv.config();
+
 const BASE_URL = process.env.API_URL || 'http://localhost:3001';
-const endpoints = ['/', '/api/payments', '/api/categories'];
+const endpoints = ['/', '/api/payments', '/api/payments/1', '/api/categories'];
 const watch = process.argv.includes('--watch');
 
 // Farben nur verwenden, wenn die Ausgabe ein Terminal ist
