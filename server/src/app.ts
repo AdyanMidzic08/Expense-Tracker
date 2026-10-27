@@ -213,6 +213,29 @@ app.get('/api/categories', async (req,res) => {
   } 
 })
 
+app.post('/api/categories',async (req,res) => {
+  try {
+    const { name } = req.body;
+
+    if(!name) {
+      return res.status(500).json({error: "Name has no Value"})
+    }
+
+    const [result] = await pool.query(
+      'insert into categories (name) values(?)',[name]
+    );
+
+    res.status(201).json({
+      id: result.insertId,
+      name,
+    });
+
+  } catch (error) {
+      console.error('Database error during categorie insertion:', error);
+      res.status(500).json({ error: 'Database error' });
+  }
+})
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
