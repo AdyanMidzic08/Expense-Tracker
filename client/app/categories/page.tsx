@@ -1,30 +1,58 @@
-"use client"
+"use client";
+
 import { Category } from "@/types";
-import { requestToBodyStream } from "next/dist/server/body-streams";
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
-export default function categories() {
-
-        const [categories, setCategories] = useState<Category[]>([]);
-        const [loading, setLoading] = useState(true);
-        const [error, setError] = useState<string | null>(null);
+export default function CategoriesPage() {
+    const [categories, setCategories] = useState<Category[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         fetch('http://localhost:3001/api/categories')
         .then((response) => {
             if(!response.ok) {
-                throw new Error("Failed to load Categories from the server"
-                )
+                throw new Error("Failed to load Categories from the server");
             }
             return response.json();
         })
         .then((data) => {
-            setCategories(data)
+            setCategories(data);
+            setLoading(false);
         })
         .catch((err) => {
             console.error(err);
-        })
-    })
+            setError(err.message);
+            setLoading(false);
+        });
+    }, []); // <--- WICHTIG: Das leere Array verhindert die Endlosschleife!
+
+    const handleEdit = (id: number) => {
+      window.location.href = `/categories/edit/${id}`;
+    };
+
+    const handleDelete = async (id: number) => {
+        if (!confirm('Are you sure you want to delete this Category?')) return;
+
+        try {
+          const response = await fetch(`http://localhost:3001/api/categories/${id}`, {
+            method: 'DELETE',
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to delete the category.');
+          }
+
+          // Entferne die gelöschte Kategorie sofort aus dem State
+          setCategories(categories.filter((c) => c.id !== id));
+        } catch (err: any) {
+          alert(err.message || 'An error occurred while deleting.');
+        }
+    };
+
+    if (loading) {
+        return <div className="flex h-screen items-center justify-center bg-slate-50 text-slate-500">Loading categories...</div>;
+    }
 
     return (
         <>
@@ -37,7 +65,6 @@ export default function categories() {
                     href="/"
                     className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-medium transition-all flex items-center gap-2"
                     >
-                    {/* Home / Arrow Left SVG Icon */}
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
@@ -56,23 +83,24 @@ export default function categories() {
                   <thead>
                     <tr className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200">
                       <th className="py-3 px-6">ID</th>
-                      <th className="py-3 px-6">name</th>
-                      <th className="py-3 px-6">created at</th>
+                      <th className="py-3 px-6">Name</th>
+                      <th className="py-3 px-6">Created At</th>
+                      <th className="py-3 px-6 text-right">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {categories.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="p-8 text-center text-slate-500">
-                          No categories found. Create your first invoice!
+                        <td colSpan={4} className="p-8 text-center text-slate-500">
+                          No categories found. Create your first category!
                         </td>
                       </tr>
                     ) : (
-                      categories.map((categorie) => (
+                      categories.map((categorie, index) => (
                         <tr key={categorie.id} className="hover:bg-slate-50/50">
-                          <td className="py-4 px-6 font-medium text-slate-900">{categorie.id}</td>
+                          <td className="py-4 px-6 font-medium text-slate-900">{index + 1}</td>
                           <td className="py-4 px-6 text-slate-600">{categorie.name}</td>
-                          <td className="py-4 px-6">
+                          <td className="py-4 px-6 text-slate-600">
                               {new Date(categorie.created_at).toLocaleDateString('de-AT', {
                                 day: '2-digit',
                                 month: '2-digit',
@@ -83,8 +111,8 @@ export default function categories() {
                             <div className="flex items-center justify-end gap-2">
 
                               <button
-                                onClick={() => handleEdit(payment.id)}
-                                title="Edit Payment"
+                                onClick={() => handleEdit(categorie.id)}
+                                title="Edit Category"
                                 className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all cursor-pointer"
                               >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -97,8 +125,8 @@ export default function categories() {
                               </button>
 
                               <button
-                                onClick={() => handleDelete(payment.id)}
-                                title="Delete Payment"
+                                onClick={() => handleDelete(categorie.id)}
+                                title="Delete Category"
                                 className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all cursor-pointer"
                               >
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">

@@ -213,6 +213,22 @@ app.get('/api/categories', async (req,res) => {
   } 
 })
 
+app.get('/api/categories/:id',async (req,res) => {
+  try {
+    const { id } = req.params;
+    const [rows]: any = await pool.query('Select * from categories where id = ?',[id]);
+
+    if(rows.length === 0) {
+      return res.status(404).json({error: "Payment not found"});
+    }
+
+    res.json(rows[0])
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({error: "Database error"})
+  }
+}) 
+
 app.post('/api/categories',async (req,res) => {
   try {
     const { name } = req.body;
@@ -234,6 +250,51 @@ app.post('/api/categories',async (req,res) => {
       console.error('Database error during categorie insertion:', error);
       res.status(500).json({ error: 'Database error' });
   }
+})
+
+app.put('/api/categories/:id',async (req,res) => {
+
+  try {
+    const { id } = req.params;
+    const { name } = req.body;
+
+    const [result]: any = await pool.query(
+      'update categories set name = ? where id = ?',[name, id]
+    );
+
+    if(result.affectedRows === 0) {
+        return res.status(404).json({ error: 'Categorie not found' });
+    }
+
+    res.json({ message: 'Categorie updated successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Database error' });
+  }
+
+})
+
+app.delete('/api/categories/:id',async (req,res) => {
+
+  try {
+    const { id } = req.params;
+
+    const [result]: any = await pool.query(
+    'delete from categories where id = ?',
+    [id]
+    );
+
+     if (result.affectedRows === 0) {
+        return res.status(404).json({ error: 'Categorie not found' });
+      }
+
+    res.json({ message: 'Categorie deleted successfully' });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Database error' });
+  }
+
 })
 
 app.listen(PORT, () => {
