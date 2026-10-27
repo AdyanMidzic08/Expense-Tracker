@@ -36,14 +36,14 @@ const apiInfo = {
       description: "Retrieves one payment record from the database"
     },
     {
-      path: "api/payments/:id",
-      method: "PUT",
-      description: "Chnges the payment record from the database"
-    },
-    {
       path: "api/payments",
       method: "POST",
       description: "adds a payment to the database"
+    },
+    {
+      path: "api/payments/:id",
+      method: "PUT",
+      description: "Chnges the payment record from the database"
     },
     {
       path: "api/payments/:id",
@@ -54,7 +54,27 @@ const apiInfo = {
       path: "/api/categories",
       method: "GET",
       description: "Retrieves all categories records from the database"
-    }
+    },
+    {
+      path: "/api/categories/:id",
+      method: "GET",
+      description: "Retrieves one categorie record from the database"
+    },
+    {
+      path: "/api/categories",
+      method: "POST",
+      description: "adds a categorie to the database"
+    },
+    {
+      path: "/api/categories/:id",
+      method: "PUT",
+      description: "Changes the categorie record from the database"
+    },
+        {
+      path: "/api/categories/:id",
+      method: "DELETE",
+      description: "removes a categorie from the database"
+    },
     
   ]
 };
