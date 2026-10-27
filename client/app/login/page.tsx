@@ -31,7 +31,7 @@ export default function LoginPage() {
 
             // JWT-Token im localStorage speichern, damit das Frontend weiß, dass der Nutzer eingeloggt ist
             localStorage.setItem("token", data.token);
-
+            localStorage.setItem("userEmail", email);
             // Nach erfolgreichem Login ab zum Dashboard
             router.push("/");
         } catch (err: any) {
