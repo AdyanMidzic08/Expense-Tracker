@@ -3,9 +3,11 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import pool from './config/db.js';
 import type { ResultSetHeader } from 'mysql2';
-import { error } from 'node:console';
-import path from 'node:path';
-import { text } from 'node:stream/consumers';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+
+const JWT_SECRET = process.env.JWT_SECRET
+
 
 dotenv.config();
 
@@ -319,4 +321,70 @@ app.delete('/api/categories/:id',async (req,res) => {
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+});
+
+// --- REGISTER ROUTE ---
+app.post('/api/register', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    // Prüfen, ob der Nutzer bereits existiert
+    const [existingUsers]: any = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+    if (existingUsers.length > 0) {
+      return res.status(400).json({ error: 'User already exists' });
+    }
+
+    // Passwort sicher verschlüsseln (Hashen)
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // In die Datenbank speichern
+    await pool.query('INSERT INTO users (email, password) VALUES (?, ?)', [email, hashedPassword]);
+
+    res.status(201).json({ message: 'User registered successfully' });
+  } catch (error) {
+    console.error('Registration error:', error);
+    res.status(500).json({ error: 'Database error during registration' });
+  }
+});
+
+
+// --- LOGIN ROUTE ---
+app.post('/api/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and password are required' });
+    }
+
+    // Nutzer in der Datenbank suchen
+    const [users]: any = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+    if (users.length === 0) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    const user = users[0];
+
+    // Passwort mit dem Hash in der Datenbank vergleichen
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Invalid email or password' });
+    }
+
+    const token = jwt.sign({ userId: user.id, email: user.email }, JWT_SECRET as string, { expiresIn: '1d' });
+
+    res.json({
+      message: 'Login successful',
+      token,
+      user: { id: user.id, email: user.email }
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    res.status(500).json({ error: 'Database error during login' });
+  }
 });
