@@ -72,11 +72,21 @@ const apiInfo = {
       method: "PUT",
       description: "Changes the categorie record from the database"
     },
-        {
+    {
       path: "/api/categories/:id",
       method: "DELETE",
       description: "removes a categorie from the database"
     },
+    {
+      path: "/api/register",
+      method: "POST",
+      description: "Creates a new User and saves it in the database"
+    },
+    {
+      path: "/api/login",
+      method: "POST",
+      description: "Authenticates user credentials and returns a JWT token"
+    }
     
   ]
 };
