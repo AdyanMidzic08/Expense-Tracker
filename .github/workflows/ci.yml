@@ -19,21 +19,22 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+          # Da die Lock-Dateien in den Unterordnern liegen, müssen wir das Caching explizit aufteilen oder für den Root deaktivieren. 
+          # Am sichersten ist es, das automatische Caching hier wegzulassen oder pro Ordner zu machen:
 
-      # Falls du ein Root-Package.json hast oder getrennte Ordner:
-      # Hier ein Beispiel für den Client:
+      # 1. Client (Next.js) bauen
       - name: Install Client Dependencies
         run: |
-          cd expense_client # Passe den Ordnernamen an, falls er bei dir anders heißt
+          cd client
           npm ci
 
       - name: Build Client
         run: |
-          cd expense_client
+          cd client
           npm run build
 
-      # Falls du auch Backend-Tests oder Build-Schritte hast:
+      # 2. Server (Express) testen / bauen (falls ein Build-Skript existiert)
       - name: Install Server Dependencies
         run: |
-          cd backend # Passe den Ordnernamen an, falls er bei dir anders heißt
+          cd server
           npm ci
