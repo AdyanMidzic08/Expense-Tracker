@@ -18,6 +18,18 @@ export default function Home() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+       const [userName, setUserName] = useState("User");
+
+    useEffect(() => {
+        // 2. E-Mail aus dem localStorage holen und den Teil vor dem "@" als Namen nutzen
+        const email = localStorage.getItem("userEmail");
+        if (email) {
+            const namePart = email.split("@")[0];
+            // Ersten Buchstaben groß machen (optional, sieht schöner aus)
+            setUserName(namePart.charAt(0).toUpperCase() + namePart.slice(1));
+        }
+    }, []);
+
     // Fetch payments on mount
     useEffect(() => {
       fetch("http://localhost:3001/api/payments")
@@ -140,7 +152,7 @@ export default function Home() {
   return (
     <div className="flex flex-col w-full">
       <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-10">
-        <h1 className="text-xl font-bold text-slate-900">Dashboard</h1>
+        <h1 className="text-xl font-bold text-slate-900">{userName}'s Dashboard</h1>
         <div className="flex items-center gap-4">
           <a href="/payments/new" className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-all">
             + New Invoice
