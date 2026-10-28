@@ -13,6 +13,11 @@ services:
       - mysql_data:/var/lib/mysql # Persists database data so it isn't lost when stopped
       - ./server/schema.sql:/docker-entrypoint-initdb.d/schema.sql
       #- ./server/testData.sql:/docker-entrypoint-initdb.d/testData.sql #only if u want TestData for ur project
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 
   # 2. The Backend Server Service
@@ -29,7 +34,8 @@ services:
     env_file:
       - ./server/.env              # Safely loads your local environment variables without leaking them
     depends_on:
-      - db                         # Waits for the database to start before launching the server
+      db:
+        condition: service_healthy
 
   client:
      build: ./client              # Uses the Dockerfile inside the "client" folder
