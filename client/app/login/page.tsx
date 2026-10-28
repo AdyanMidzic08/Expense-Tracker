@@ -34,8 +34,8 @@ export default function LoginPage() {
             localStorage.setItem("userEmail", email);
             // Nach erfolgreichem Login ab zum Dashboard
             router.push("/");
-        } catch (err: any) {
-            setError(err.message);
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : "Login failed");
         } finally {
             setIsLoading(false);
         }
@@ -97,7 +97,7 @@ export default function LoginPage() {
                 </form>
 
                 <div className="mt-6 text-center text-sm text-slate-500">
-                    Don't have an account yet?{" "}
+                    Don&apos;t have an account yet?{" "}
                     <Link href="/register" className="text-indigo-600 font-medium hover:underline">
                         Register here
                     </Link>

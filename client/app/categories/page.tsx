@@ -1,12 +1,15 @@
 "use client";
 
 import { Category } from "@/types";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 export default function CategoriesPage() {
+    const router = useRouter();
     const [categories, setCategories] = useState<Category[]>([]);
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [, setError] = useState<string | null>(null);
 
     useEffect(() => {
         fetch('http://localhost:3001/api/categories')
@@ -22,13 +25,13 @@ export default function CategoriesPage() {
         })
         .catch((err) => {
             console.error(err);
-            setError(err.message);
+            setError(err instanceof Error ? err.message : "Failed to load categories");
             setLoading(false);
         });
     }, []); // <--- WICHTIG: Das leere Array verhindert die Endlosschleife!
 
     const handleEdit = (id: number) => {
-      window.location.href = `/categories/edit/${id}`;
+      router.push(`/categories/edit/${id}`);
     };
 
     const handleDelete = async (id: number) => {
@@ -45,8 +48,9 @@ export default function CategoriesPage() {
 
           // Entferne die gelöschte Kategorie sofort aus dem State
           setCategories(categories.filter((c) => c.id !== id));
-        } catch (err: any) {
-          alert(err.message || 'An error occurred while deleting.');
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : 'An error occurred while deleting.';
+          alert(message);
         }
     };
 
@@ -61,7 +65,7 @@ export default function CategoriesPage() {
                 <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-10">
                 <h1 className="text-xl font-bold text-slate-900">All Categories</h1>
                 <div className="flex items-center gap-4">
-                    <a
+                    <Link
                     href="/"
                     className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-medium transition-all flex items-center gap-2"
                     >
@@ -69,13 +73,13 @@ export default function CategoriesPage() {
                         <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
                     Back to Dashboard
-                    </a>
-                    <a
+                    </Link>
+                    <Link
                     href="/categories/new"
                     className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-all"
                     >
                     + New Category
-                    </a>
+                    </Link>
                 </div>
                 </header>
 

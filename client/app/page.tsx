@@ -1,16 +1,7 @@
 'use client';
-import { Category } from "@/types";
+import { Category, Payment } from "@/types";
+import Link from "next/link";
 import { useEffect, useState } from "react";
-
-export interface Payment {
-  id: number;
-  invoice_id: string;
-  client: string;
-  amount: number;
-  status: 'Paid' | 'Pending' | 'Cancelled';
-  category_id?: number;
-  created_at?: string;
-}
 
 export default function Home() {
     const [payments, setPayments] = useState<Payment[]>([]);
@@ -26,7 +17,10 @@ export default function Home() {
         if (email) {
             const namePart = email.split("@")[0];
             // Ersten Buchstaben groß machen (optional, sieht schöner aus)
-            setUserName(namePart.charAt(0).toUpperCase() + namePart.slice(1));
+            const formatted = namePart.charAt(0).toUpperCase() + namePart.slice(1);
+            queueMicrotask(() => {
+                setUserName(formatted);
+            });
         }
     }, []);
 
@@ -87,7 +81,7 @@ export default function Home() {
               <tr className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200"><th className="py-3 px-6">Category</th><th className="py-3 px-6">Client</th><th className="py-3 px-6">Amount</th><th className="py-3 px-6">Status</th></tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {displayedPayments.map((payment: any) => {
+              {displayedPayments.map((payment: Payment) => {
                 const matchedCategory = categories.find(cat => cat.id === payment.category_id);
 
                 return (
@@ -114,9 +108,9 @@ export default function Home() {
           {hasMore && (
             <div className="p-4 bg-slate-50 border-t border-slate-200 text-center text-xs text-slate-500 flex items-center justify-between px-6">
               <span>Showing 3 of {payments.length} recent invoices.</span>
-              <a href="/payments" className="font-medium text-indigo-600 hover:text-indigo-700">
+              <Link href="/payments" className="font-medium text-indigo-600 hover:text-indigo-700">
                 View all payments &rarr;
-              </a>
+              </Link>
             </div>
           )}
         </div>
@@ -152,11 +146,11 @@ export default function Home() {
   return (
     <div className="flex flex-col w-full">
       <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-10">
-        <h1 className="text-xl font-bold text-slate-900">{userName}'s Dashboard</h1>
+        <h1 className="text-xl font-bold text-slate-900">{userName}&apos;s Dashboard</h1>
         <div className="flex items-center gap-4">
-          <a href="/payments/new" className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-all">
+          <Link href="/payments/new" className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-all">
             + New Invoice
-          </a>
+          </Link>
         </div>
       </header>
 

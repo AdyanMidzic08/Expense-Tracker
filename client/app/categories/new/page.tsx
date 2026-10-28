@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -35,7 +36,7 @@ export default function NewCategory() {
             router.push('/');
         },120);
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Submission error:', error);
     }
     };
@@ -46,7 +47,7 @@ export default function NewCategory() {
                 <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-10">
                     <h1 className="text-xl font-bold text-slate-900">New Category</h1>
                     <div className="flex items-center gap-4">
-                        <a
+                        <Link
                             href="/"
                             className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-medium transition-all flex items-center gap-2"
                         >
@@ -55,7 +56,7 @@ export default function NewCategory() {
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                             </svg>
                             Back to Dashboard
-                        </a>
+                        </Link>
                     </div>
                 </header>
 

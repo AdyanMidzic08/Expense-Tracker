@@ -2,8 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { Payment, Category } from '@/types';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function PaymentsPage() {
+  const router = useRouter();
   const [payments, setPayments] = useState<Payment[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
@@ -48,14 +51,15 @@ export default function PaymentsPage() {
 
       // Remove the deleted payment from local state to update the UI instantly
       setPayments(payments.filter((p) => p.id !== id));
-    } catch (err: any) {
-      alert(err.message || 'An error occurred while deleting.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'An error occurred while deleting.';
+      alert(message);
     }
   };
 
   // Handle payment editing redirection
   const handleEdit = (id: number) => {
-    window.location.href = `/payments/edit/${id}`;
+    router.push(`/payments/edit/${id}`);
   };
 
   return (
@@ -66,7 +70,7 @@ export default function PaymentsPage() {
         <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-10">
           <h1 className="text-xl font-bold text-slate-900">All Payments</h1>
           <div className="flex items-center gap-4">
-            <a
+            <Link
               href="/"
               className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-medium transition-all flex items-center gap-2"
             >
@@ -75,13 +79,13 @@ export default function PaymentsPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
               Back to Dashboard
-            </a>
-            <a
+            </Link>
+            <Link
               href="/payments/new"
               className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-medium shadow-sm transition-all"
             >
               + New Invoice
-            </a>
+            </Link>
           </div>
         </header>
 

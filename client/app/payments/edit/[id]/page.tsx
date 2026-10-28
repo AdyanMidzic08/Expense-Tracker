@@ -1,6 +1,6 @@
 'use client';
 
-import { Category, Payment } from "@/types";
+import { Payment } from "@/types";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -72,9 +72,9 @@ export default function EditPaymentPage() {
 
       // Nach erfolgreichem Speichern zurück zur Payments-Übersicht
       router.push('/payments');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setErrorMessage(err.message || "Ein unerwarteter Fehler ist aufgetreten.");
+      setErrorMessage(err instanceof Error ? err.message : "Ein unerwarteter Fehler ist aufgetreten.");
       setIsSubmitting(false);
     }
   };

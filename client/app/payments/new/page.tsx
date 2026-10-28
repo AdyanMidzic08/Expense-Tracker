@@ -1,9 +1,9 @@
 'use client';
 
-import { Category} from '@/types';
+import { Category, Payment } from '@/types';
+import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { METHODS } from 'node:http';
 
 export default function NewPayment() {
   const router = useRouter();
@@ -20,8 +20,8 @@ export default function NewPayment() {
   
   // States for backend submission handling
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [successMessage, setSuccessMessage] = useState(false);
+  const [, setErrorMessage] = useState<string | null>(null);
+  const [, setSuccessMessage] = useState(false);
 
   useEffect(() => {
     fetch('http://localhost:3001/api/categories')
@@ -37,12 +37,12 @@ export default function NewPayment() {
 
     fetch('http://localhost:3001/api/payments')
       .then((res) => res.json())
-      .then((payments) => {
+      .then((payments: Payment[]) => {
         const year = new Date().getFullYear();
         
         if (payments && payments.length > 0) {
           let maxNum = 0;
-          payments.forEach((p: any) => {
+          payments.forEach((p) => {
             const parts = p.invoice_id.split('-');
             const lastPart = parseInt(parts[parts.length - 1], 10);
             if (!isNaN(lastPart) && lastPart > maxNum) {
@@ -93,51 +93,13 @@ export default function NewPayment() {
             router.push('/');
         },120);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Submission error:', error);
-      setErrorMessage(error.message || 'An unexpected error occurred.');
+      setErrorMessage(error instanceof Error ? error.message : 'An unexpected error occurred.');
     } finally {
         setIsSubmitting(false);
     }
   };
-
-  const handleDelete = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setErrorMessage(null);
-    setSuccessMessage(false);
-
-        try {
-        const response = await fetch(`http://localhost:3001/api/payments`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                invoice_id: formData.invoice_id,
-                client: formData.client,
-                amount: parseFloat(formData.amount),
-                status: formData.status,
-                // category: formData.category // Uncomment if your payments table supports category_id
-            }),
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to delete the payment from the database.');
-        }
-        setSuccessMessage(true);
-        
-        setTimeout(() => {
-            router.push('/');
-        },1200);
-
-    } catch (error: any) {
-      console.error('Submission error:', error);
-      setErrorMessage(error.message || 'An unexpected error occurred.');
-    } finally {
-        setIsSubmitting(false);
-    }
-  }
 
   return (
     <div className="flex h-screen bg-slate-50 text-slate-800 font-sans">
@@ -145,9 +107,9 @@ export default function NewPayment() {
         
         <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-10">
           <h1 className="text-xl font-bold text-slate-900">New Invoice</h1>
-          <a href="/" className="text-sm font-medium text-slate-600 hover:text-slate-900">
+          <Link href="/" className="text-sm font-medium text-slate-600 hover:text-slate-900">
             &larr; Back to Dashboard
-          </a>
+          </Link>
         </header>
 
         <div className="p-8 max-w-3xl w-full mx-auto">
@@ -238,12 +200,12 @@ export default function NewPayment() {
               </div>
 
               <div className="flex items-center justify-end gap-4 pt-4 border-t border-slate-100">
-                <a
+                <Link
                   href="/"
                   className="px-5 py-2.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-medium transition-all"
                 >
                   Cancel
-                </a>
+                </Link>
             
             <button
                 type="submit"

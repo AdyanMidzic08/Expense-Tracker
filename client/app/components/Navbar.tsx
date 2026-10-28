@@ -9,7 +9,6 @@ export default function Navbar({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [userName, setUserName] = useState("Workspace");
 
-  // 1. Alle Hooks kommen IMMER zuerst und ohne Bedingungen!
   useEffect(() => {
     // Wenn wir auf /login oder /register sind, müssen wir den Token-Check gar nicht machen
     if (pathname === "/login" || pathname === "/register") {
@@ -25,7 +24,10 @@ export default function Navbar({ children }: { children: React.ReactNode }) {
     const email = localStorage.getItem("userEmail");
     if (email) {
       const namePart = email.split("@")[0];
-      setUserName(namePart.charAt(0).toUpperCase() + namePart.slice(1));
+      const formatted = namePart.charAt(0).toUpperCase() + namePart.slice(1);
+      queueMicrotask(() => {
+        setUserName(formatted);
+      });
     }
   }, [pathname, router]);
 
@@ -53,7 +55,7 @@ export default function Navbar({ children }: { children: React.ReactNode }) {
                 {userName.charAt(0)}
               </div>
               <div className="overflow-hidden">
-                <h2 className="text-sm font-bold text-slate-900 truncate">{userName}'s</h2>
+                <h2 className="text-sm font-bold text-slate-900 truncate">{userName}&apos;s</h2>
                 <h1 className="text-lg font-extrabold text-slate-900">Payments</h1>
               </div>
             </div>
