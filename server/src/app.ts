@@ -269,7 +269,7 @@ app.post('/api/categories',async (req,res) => {
       return res.status(500).json({error: "Name has no Value"})
     }
 
-    const [result] = await pool.query(
+    const [result] = await pool.query<ResultSetHeader>(
       'insert into categories (name) values(?)',[name]
     );
 

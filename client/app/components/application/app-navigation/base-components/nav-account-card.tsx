@@ -6,9 +6,9 @@ import { BookOpen01, ChevronSelectorVertical, LogOut01, Plus, Settings01, User01
 import { useFocusManager } from "react-aria";
 import type { DialogProps as AriaDialogProps, Placement as AriaPlacement } from "react-aria-components";
 import { Button as AriaButton, Dialog as AriaDialog, DialogTrigger as AriaDialogTrigger, Popover as AriaPopover } from "react-aria-components";
-import { AvatarLabelGroup } from "@/components/base/avatar/avatar-label-group";
-import { Button } from "@/components/base/buttons/button";
-import { RadioButtonBase } from "@/components/base/radio-buttons/radio-buttons";
+import { AvatarLabelGroup } from "@/app/components/base/avatar/avatar-label-group";
+import { Button } from "@/app/components/base/buttons/button";
+import { RadioButtonBase } from "@/app/components/base/radio-buttons/radio-buttons";
 import { useBreakpoint } from "@/hooks/use-breakpoint";
 import { cx } from "@/utils/cx";
 

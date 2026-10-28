@@ -101,11 +101,13 @@ export default function CategoriesPage() {
                           <td className="py-4 px-6 font-medium text-slate-900">{index + 1}</td>
                           <td className="py-4 px-6 text-slate-600">{categorie.name}</td>
                           <td className="py-4 px-6 text-slate-600">
-                              {new Date(categorie.created_at).toLocaleDateString('de-AT', {
-                                day: '2-digit',
-                                month: '2-digit',
-                                year: 'numeric'
-                              })}
+                              {categorie.created_at
+                                ? new Date(categorie.created_at).toLocaleDateString('de-AT', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric'
+                                  })
+                                : '-'}
                           </td>
                           <td className="py-4 px-6 text-right">
                             <div className="flex items-center justify-end gap-2">

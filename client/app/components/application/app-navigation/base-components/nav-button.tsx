@@ -2,7 +2,7 @@
 
 import type { FC, MouseEventHandler, ReactNode } from "react";
 import { Pressable } from "react-aria-components";
-import { Tooltip } from "@/components/base/tooltip/tooltip";
+import { Tooltip } from "@/app/components/base/tooltip/tooltip";
 import { cx } from "@/utils/cx";
 
 interface NavButtonProps {

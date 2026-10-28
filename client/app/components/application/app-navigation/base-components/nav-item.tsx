@@ -4,7 +4,7 @@ import type { FC, HTMLAttributes, MouseEventHandler, ReactNode, RefAttributes } 
 import { ChevronDown, Share04 } from "@untitledui/icons";
 import type { LinkProps as AriaLinkProps } from "react-aria-components";
 import { Link as AriaLink } from "react-aria-components";
-import { Badge } from "@/components/base/badges/badges";
+import { Badge } from "@/app/components/base/badges/badges";
 import { cx, sortCx } from "@/utils/cx";
 
 const styles = sortCx({
