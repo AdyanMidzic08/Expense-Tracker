@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "test": "playwright test",
+    "test:live": "playwright test --ui"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
