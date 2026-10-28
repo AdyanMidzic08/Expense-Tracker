@@ -142,8 +142,8 @@ export const Avatar = ({
 
   const renderMainContent = () => {
     if (canShowImage) {
-      // eslint-disable-next-line @next/next/no-img-element
       return (
+        // eslint-disable-next-line @next/next/no-img-element
         <img
           data-avatar-img
           className="size-full object-cover"

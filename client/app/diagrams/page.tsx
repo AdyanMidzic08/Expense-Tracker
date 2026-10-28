@@ -13,8 +13,7 @@ import {
   Cell,
   Legend,
 } from 'recharts';
-import { Category } from '@/types';
-import { Payment } from '../page';
+import { Category, Payment } from '@/types';
 
 const COLORS = [
   '#4f46e5',
