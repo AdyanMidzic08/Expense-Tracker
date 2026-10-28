@@ -34,6 +34,11 @@ jobs:
           cd client
           npm run lint
 
+      - name: Check Code Formatting (Prettier)
+        run: |
+          cd client
+          npm run format:check
+
       - name: Build Client
         run: |
           cd client
