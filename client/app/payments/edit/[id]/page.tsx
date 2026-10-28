@@ -1,8 +1,8 @@
 'use client';
 
-import { Payment } from "@/types";
-import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Payment } from '@/types';
+import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 export default function EditPaymentPage() {
   const router = useRouter();
@@ -26,7 +26,7 @@ export default function EditPaymentPage() {
 
     fetch(`http://localhost:3001/api/payments/${id}`)
       .then((res) => {
-        if (!res.ok) throw new Error("Fehler beim Laden der Zahlungsdaten.");
+        if (!res.ok) throw new Error('Fehler beim Laden der Zahlungsdaten.');
         return res.json();
       })
       .then((payment: Payment) => {
@@ -67,27 +67,37 @@ export default function EditPaymentPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Fehler beim Aktualisieren der Zahlung.");
+        throw new Error('Fehler beim Aktualisieren der Zahlung.');
       }
 
       // Nach erfolgreichem Speichern zurück zur Payments-Übersicht
       router.push('/payments');
     } catch (err: unknown) {
       console.error(err);
-      setErrorMessage(err instanceof Error ? err.message : "Ein unerwarteter Fehler ist aufgetreten.");
+      setErrorMessage(
+        err instanceof Error
+          ? err.message
+          : 'Ein unerwarteter Fehler ist aufgetreten.'
+      );
       setIsSubmitting(false);
     }
   };
 
   if (loading) {
-    return <div className="p-8 text-center text-slate-500">Lade Zahlungsdetails...</div>;
+    return (
+      <div className="p-8 text-center text-slate-500">
+        Lade Zahlungsdetails...
+      </div>
+    );
   }
 
   return (
     <div className="flex flex-col w-full min-h-screen bg-slate-50">
       {/* Top Header */}
       <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-10">
-        <h1 className="text-xl font-bold text-slate-900">Rechnung bearbeiten #{formData.invoice_id}</h1>
+        <h1 className="text-xl font-bold text-slate-900">
+          Rechnung bearbeiten #{formData.invoice_id}
+        </h1>
         <a
           href="/payments"
           className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-medium transition-all"
@@ -99,7 +109,9 @@ export default function EditPaymentPage() {
       {/* Form Content */}
       <div className="p-8 max-w-2xl w-full mx-auto">
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-8">
-          <h2 className="text-lg font-bold text-slate-900 mb-6">Zahlungsdaten anpassen</h2>
+          <h2 className="text-lg font-bold text-slate-900 mb-6">
+            Zahlungsdaten anpassen
+          </h2>
 
           {errorMessage && (
             <div className="mb-6 p-4 bg-rose-50 border border-rose-200 text-rose-700 rounded-lg text-sm font-medium">
@@ -128,7 +140,9 @@ export default function EditPaymentPage() {
                 type="text"
                 required
                 value={formData.client}
-                onChange={(e) => setFormData({ ...formData, client: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, client: e.target.value })
+                }
                 className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 text-sm transition-all"
               />
             </div>
@@ -142,7 +156,9 @@ export default function EditPaymentPage() {
                 step="0.01"
                 required
                 value={formData.amount}
-                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, amount: e.target.value })
+                }
                 className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 text-sm transition-all"
               />
             </div>
@@ -153,7 +169,9 @@ export default function EditPaymentPage() {
               </label>
               <select
                 value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, status: e.target.value })
+                }
                 className="w-full px-4 py-2.5 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-slate-900 text-sm transition-all"
               >
                 <option value="Pending">Pending</option>

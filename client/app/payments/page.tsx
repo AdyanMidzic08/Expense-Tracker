@@ -52,7 +52,10 @@ export default function PaymentsPage() {
       // Remove the deleted payment from local state to update the UI instantly
       setPayments(payments.filter((p) => p.id !== id));
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'An error occurred while deleting.';
+      const message =
+        err instanceof Error
+          ? err.message
+          : 'An error occurred while deleting.';
       alert(message);
     }
   };
@@ -65,7 +68,6 @@ export default function PaymentsPage() {
   return (
     <div className="flex h-screen bg-slate-50 text-slate-800 font-sans">
       <main className="flex-1 flex flex-col overflow-y-auto">
-        
         {/* Top Header */}
         <header className="h-16 bg-white border-b border-slate-200 px-8 flex items-center justify-between sticky top-0 z-10">
           <h1 className="text-xl font-bold text-slate-900">All Payments</h1>
@@ -75,8 +77,18 @@ export default function PaymentsPage() {
               className="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm font-medium transition-all flex items-center gap-2"
             >
               {/* Home / Arrow Left SVG Icon */}
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                />
               </svg>
               Back to Dashboard
             </Link>
@@ -94,16 +106,28 @@ export default function PaymentsPage() {
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="p-6 border-b border-slate-200 flex justify-between items-center">
               <div>
-                <h2 className="font-bold text-slate-900 text-base">Payment History</h2>
-                <p className="text-xs text-slate-500 mt-0.5">Manage and view all registered invoices and transactions.</p>
+                <h2 className="font-bold text-slate-900 text-base">
+                  Payment History
+                </h2>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Manage and view all registered invoices and transactions.
+                </p>
               </div>
             </div>
 
             {/* Loading state */}
-            {loading && <div className="p-8 text-center text-slate-500 text-sm">Loading all payments...</div>}
+            {loading && (
+              <div className="p-8 text-center text-slate-500 text-sm">
+                Loading all payments...
+              </div>
+            )}
 
             {/* Error state */}
-            {error && <div className="p-8 text-center text-rose-600 text-sm font-medium">Error: {error}</div>}
+            {error && (
+              <div className="p-8 text-center text-rose-600 text-sm font-medium">
+                Error: {error}
+              </div>
+            )}
 
             {/* Payments Table */}
             {!loading && !error && (
@@ -122,31 +146,44 @@ export default function PaymentsPage() {
                   <tbody className="divide-y divide-slate-100">
                     {payments.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="p-8 text-center text-slate-500">
+                        <td
+                          colSpan={6}
+                          className="p-8 text-center text-slate-500"
+                        >
                           No payments found. Create your first invoice!
                         </td>
                       </tr>
                     ) : (
                       payments.map((payment) => {
                         // Find matching category name
-                        const matchedCategory = categories.find((cat) => cat.id === payment.category_id);
+                        const matchedCategory = categories.find(
+                          (cat) => cat.id === payment.category_id
+                        );
 
                         return (
                           <tr key={payment.id} className="hover:bg-slate-50/50">
-                            <td className="py-4 px-6 font-medium text-slate-900">#{payment.invoice_id}</td>
                             <td className="py-4 px-6 font-medium text-slate-900">
-                              {matchedCategory ? matchedCategory.name : 'Allgemein'}
+                              #{payment.invoice_id}
                             </td>
-                            <td className="py-4 px-6 text-slate-600">{payment.client}</td>
-                            <td className="py-4 px-6 text-slate-900 font-medium">${Number(payment.amount).toFixed(2)}</td>
+                            <td className="py-4 px-6 font-medium text-slate-900">
+                              {matchedCategory
+                                ? matchedCategory.name
+                                : 'Allgemein'}
+                            </td>
+                            <td className="py-4 px-6 text-slate-600">
+                              {payment.client}
+                            </td>
+                            <td className="py-4 px-6 text-slate-900 font-medium">
+                              ${Number(payment.amount).toFixed(2)}
+                            </td>
                             <td className="py-4 px-6">
                               <span
                                 className={`px-2.5 py-1 rounded-full text-xs font-medium ${
                                   payment.status === 'Paid'
                                     ? 'bg-emerald-50 text-emerald-700'
                                     : payment.status === 'Pending'
-                                    ? 'bg-amber-50 text-amber-700'
-                                    : 'bg-rose-50 text-rose-700'
+                                      ? 'bg-amber-50 text-amber-700'
+                                      : 'bg-rose-50 text-rose-700'
                                 }`}
                               >
                                 {payment.status}
@@ -160,7 +197,13 @@ export default function PaymentsPage() {
                                   title="Edit Payment"
                                   className="p-2 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all cursor-pointer"
                                 >
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                  <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    viewBox="0 0 24 24"
+                                  >
                                     <path
                                       strokeLinecap="round"
                                       strokeLinejoin="round"
@@ -175,7 +218,13 @@ export default function PaymentsPage() {
                                   title="Delete Payment"
                                   className="p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all cursor-pointer"
                                 >
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                  <svg
+                                    className="w-4 h-4"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    viewBox="0 0 24 24"
+                                  >
                                     <path
                                       strokeLinecap="round"
                                       strokeLinejoin="round"
