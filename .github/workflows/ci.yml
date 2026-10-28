@@ -44,6 +44,18 @@ jobs:
           cd client
           npm run build
 
+      - name: Install Playwright Browsers
+        run: |
+          cd client
+          npx playwright install --with-deps chromium
+
+      - name: Run Frontend E2E Tests
+        run: |
+          cd client
+          npm test
+        env:
+          CI: true
+
       # 2. Server (Express) installieren / testen
       - name: Install Server Dependencies
         run: |
