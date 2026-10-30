@@ -14,6 +14,7 @@ import {
   Legend,
 } from 'recharts';
 import { Category, Payment } from '@/types';
+import { getAuthHeaders } from '@/lib/api';
 
 const COLORS = [
   '#4f46e5',
@@ -32,11 +33,15 @@ export default function DiagramsPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch('http://localhost:3001/api/payments').then((res) => {
+      fetch('http://localhost:3001/api/payments', {
+        headers: getAuthHeaders(),
+      }).then((res) => {
         if (!res.ok) throw new Error('Failed to load payments');
         return res.json();
       }),
-      fetch('http://localhost:3001/api/categories').then((res) => {
+      fetch('http://localhost:3001/api/categories', {
+        headers: getAuthHeaders(),
+      }).then((res) => {
         if (!res.ok) throw new Error('Failed to load categories');
         return res.json();
       }),

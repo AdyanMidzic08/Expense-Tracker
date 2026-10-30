@@ -4,6 +4,7 @@ import { Category, Payment } from '@/types';
 import Link from 'next/link';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { getAuthHeaders } from '@/lib/api';
 
 export default function NewPayment() {
   const router = useRouter();
@@ -24,7 +25,9 @@ export default function NewPayment() {
   const [, setSuccessMessage] = useState(false);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/categories')
+    fetch('http://localhost:3001/api/categories', {
+      headers: getAuthHeaders(),
+    })
       .then((res) => res.json())
       .then((data) => {
         setCategories(data);
@@ -35,7 +38,9 @@ export default function NewPayment() {
         setLoadingCategories(false);
       });
 
-    fetch('http://localhost:3001/api/payments')
+    fetch('http://localhost:3001/api/payments', {
+      headers: getAuthHeaders(),
+    })
       .then((res) => res.json())
       .then((payments: Payment[]) => {
         const year = new Date().getFullYear();
@@ -75,9 +80,7 @@ export default function NewPayment() {
     try {
       const response = await fetch(`http://localhost:3001/api/payments`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           invoice_id: formData.invoice_id,
           client: formData.client,

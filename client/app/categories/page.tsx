@@ -4,6 +4,7 @@ import { Category } from '@/types';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { getAuthHeaders } from '@/lib/api';
 
 export default function CategoriesPage() {
   const router = useRouter();
@@ -12,7 +13,9 @@ export default function CategoriesPage() {
   const [, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/categories')
+    fetch('http://localhost:3001/api/categories', {
+      headers: getAuthHeaders(),
+    })
       .then((response) => {
         if (!response.ok) {
           throw new Error('Failed to load Categories from the server');
@@ -44,6 +47,7 @@ export default function CategoriesPage() {
         `http://localhost:3001/api/categories/${id}`,
         {
           method: 'DELETE',
+          headers: getAuthHeaders(),
         }
       );
 

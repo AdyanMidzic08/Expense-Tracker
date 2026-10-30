@@ -3,6 +3,7 @@
 import { Payment } from '@/types';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { getAuthHeaders } from '@/lib/api';
 
 export default function EditPaymentPage() {
   const router = useRouter();
@@ -24,7 +25,9 @@ export default function EditPaymentPage() {
   useEffect(() => {
     if (!id) return;
 
-    fetch(`http://localhost:3001/api/payments/${id}`)
+    fetch(`http://localhost:3001/api/payments/${id}`, {
+      headers: getAuthHeaders(),
+    })
       .then((res) => {
         if (!res.ok) throw new Error('Fehler beim Laden der Zahlungsdaten.');
         return res.json();
@@ -56,9 +59,7 @@ export default function EditPaymentPage() {
     try {
       const response = await fetch(`http://localhost:3001/api/payments/${id}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           client: formData.client,
           amount: parseFloat(formData.amount),

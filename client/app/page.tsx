@@ -2,6 +2,7 @@
 import { Category, Payment } from '@/types';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { getAuthHeaders } from '@/lib/api';
 
 export default function Home() {
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -26,7 +27,9 @@ export default function Home() {
 
   // Fetch payments on mount
   useEffect(() => {
-    fetch('http://localhost:3001/api/payments')
+    fetch('http://localhost:3001/api/payments', {
+      headers: getAuthHeaders(),
+    })
       .then((response) => {
         if (!response.ok) {
           throw new Error('Failed to load payments');
@@ -45,7 +48,9 @@ export default function Home() {
 
   // Fetch categories on mount
   useEffect(() => {
-    fetch('http://localhost:3001/api/categories')
+    fetch('http://localhost:3001/api/categories', {
+      headers: getAuthHeaders(),
+    })
       .then((response) => {
         if (!response.ok) {
           throw new Error('Failed to load categories');
