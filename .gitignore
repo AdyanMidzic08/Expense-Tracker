@@ -54,6 +54,7 @@ out/
 .env
 .env.*
 !.env.example
+.npmrc
 
 # Logs & System files
 npm-debug.log*

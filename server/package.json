@@ -1,6 +1,9 @@
 {
-  "name": "server",
+  "name": "@AdyanMidzic08/server",
   "version": "1.0.0",
+  "publishConfig": {
+  "registry": "https://npm.pkg.github.com"
+  },
   "description": "",
   "main": "index.js",
   "scripts": {

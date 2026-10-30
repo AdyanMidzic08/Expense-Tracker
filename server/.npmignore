@@ -1,0 +1,17 @@
+# --- Sensitive & Config Files (Wichtig!) ---
+.env
+.env.*
+.npmrc
+tsconfig.json
+
+# --- Source Code (Nur dist/ wird veröffentlicht) ---
+src/
+
+# --- Dependencies & Logs ---
+node_modules/
+npm-debug.log*
+.DS_Store
+
+# --- SQL Dumps & Test Data ---
+*.sql
+testData/
