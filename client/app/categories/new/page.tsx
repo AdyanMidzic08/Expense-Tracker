@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { getAuthHeaders } from '@/lib/api';
 
 export default function NewCategory() {
   const [formData, setFormData] = useState({
@@ -20,9 +21,7 @@ export default function NewCategory() {
     try {
       const response = await fetch(`http://localhost:3001/api/categories`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           name: formData.name,
         }),

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
+import { getAuthHeaders } from '@/lib/api';
 
 export default function EditCategory() {
   const router = useRouter();
@@ -15,7 +16,10 @@ export default function EditCategory() {
     const fetchCategory = async () => {
       try {
         const response = await fetch(
-          `http://localhost:3001/api/categories/${id}`
+          `http://localhost:3001/api/categories/${id}`,
+          {
+            headers: getAuthHeaders(),
+          }
         );
         if (response.ok) {
           const data = await response.json();
@@ -39,7 +43,7 @@ export default function EditCategory() {
         `http://localhost:3001/api/categories/${id}`,
         {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
+          headers: getAuthHeaders(),
           body: JSON.stringify({ name }),
         }
       );

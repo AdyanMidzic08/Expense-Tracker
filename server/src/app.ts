@@ -5,11 +5,12 @@ import pool from './config/db.js';
 import type { ResultSetHeader } from 'mysql2';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET
-
+import { authenticateToken } from './middleware/auth.js';
+import type { AuthenticatedRequest } from './middleware/auth.js';
 
 dotenv.config();
+
+const JWT_SECRET = process.env.JWT_SECRET;
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -30,52 +31,52 @@ const apiInfo = {
     {
       path: "/api/payments",
       method: "GET",
-      description: "Retrieves all payment records from the database"
+      description: "Retrieves user payment records from the database"
     },
     {
-      path: "api/payments/:id",
+      path: "/api/payments/:id",
       method: "GET",
-      description: "Retrieves one payment record from the database"
+      description: "Retrieves one payment record belonging to the user"
     },
     {
-      path: "api/payments",
+      path: "/api/payments",
       method: "POST",
-      description: "adds a payment to the database"
+      description: "Adds a payment for the authenticated user"
     },
     {
-      path: "api/payments/:id",
+      path: "/api/payments/:id",
       method: "PUT",
-      description: "Chnges the payment record from the database"
+      description: "Changes the user payment record in the database"
     },
     {
-      path: "api/payments/:id",
+      path: "/api/payments/:id",
       method: "DELETE",
-      description: "removes a payment from the database"
+      description: "Removes a user payment from the database"
     },
     {
       path: "/api/categories",
       method: "GET",
-      description: "Retrieves all categories records from the database"
+      description: "Retrieves user categories from the database"
     },
     {
       path: "/api/categories/:id",
       method: "GET",
-      description: "Retrieves one categorie record from the database"
+      description: "Retrieves one category record belonging to the user"
     },
     {
       path: "/api/categories",
       method: "POST",
-      description: "adds a categorie to the database"
+      description: "Adds a category for the authenticated user"
     },
     {
       path: "/api/categories/:id",
       method: "PUT",
-      description: "Changes the categorie record from the database"
+      description: "Changes the user category record in the database"
     },
     {
       path: "/api/categories/:id",
       method: "DELETE",
-      description: "removes a categorie from the database"
+      description: "Removes a user category from the database"
     },
     {
       path: "/api/register",
@@ -87,7 +88,6 @@ const apiInfo = {
       method: "POST",
       description: "Authenticates user credentials and returns a JWT token"
     }
-    
   ]
 };
 
@@ -135,71 +135,58 @@ app.get('/', (req, res) => {
   res.send(html);
 });
 
-app.get('/api/payments', async (req, res) => {
+// --- PAYMENTS ROUTES (Protected) ---
+app.get('/api/payments', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {
-    const [rows] = await pool.query('select * from payments order by created_at DESC');
+    const userId = req.userId;
+    const [rows] = await pool.query(
+      'SELECT * FROM payments WHERE user_id = ? ORDER BY created_at DESC',
+      [userId]
+    );
     res.json(rows);
   } catch (error) {
-    console.error(error);
+    console.error('Error fetching payments:', error);
     res.status(500).json({ error: 'Database error' });
   }
 });
 
-app.get('/api/payments/:id', async (req,res) => {
+app.get('/api/payments/:id', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {
     const { id } = req.params;
-    const [rows]: any = await pool.query('SELECT * FROM payments WHERE id = ?', [id]);
-
-    if(rows.length === 0) {
-      return res.status(404).json({error: "Payment not Found"})
-    }
-
-    res.json(rows[0])
-
-
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({error: "Database error"})
-  }
-})
-
-app.put('/api/payments/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { client, amount, status } = req.body;
-
-    const [result]: any = await pool.query(
-      'update payments set client = ?, amount = ?, status = ? WHERE id = ?',
-      [client, amount, status, id]
+    const userId = req.userId;
+    const [rows]: any = await pool.query(
+      'SELECT * FROM payments WHERE id = ? AND user_id = ?',
+      [id, userId]
     );
 
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Payment not found' });
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Payment not Found' });
     }
 
-    res.json({ message: 'Payment updated successfully' });
-  } catch (err) {
-    console.error(err);
+    res.json(rows[0]);
+  } catch (error) {
+    console.error('Error fetching payment:', error);
     res.status(500).json({ error: 'Database error' });
   }
 });
 
-app.post('/api/payments', async (req, res) => {
+app.post('/api/payments', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {
+    const userId = req.userId;
     const { invoice_id, client, amount, status, category_id } = req.body;
 
     if (!invoice_id || !client || amount === undefined) {
-      return res.status(500).json({ error: "Missing required fields (invoice_id, client, amount)" });
+      return res.status(400).json({ error: 'Missing required fields (invoice_id, client, amount)' });
     }
 
     const [result] = await pool.query<ResultSetHeader>(
-      'insert into payments (invoice_id, client, amount, status, category_id) values(?,?,?,?,?)',
-      [invoice_id, client, amount, status || 'Pending', category_id || null]
+      'INSERT INTO payments (user_id, invoice_id, client, amount, status, category_id) VALUES (?, ?, ?, ?, ?, ?)',
+      [userId, invoice_id, client, amount, status || 'Pending', category_id || null]
     );
 
     res.status(201).json({
       id: result.insertId,
+      user_id: userId,
       invoice_id,
       client,
       amount,
@@ -212,125 +199,150 @@ app.post('/api/payments', async (req, res) => {
   }
 });
 
-
-app.delete('/api/payments/:id', async (req,res) => {
-
+app.put('/api/payments/:id', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {
     const { id } = req.params;
+    const userId = req.userId;
+    const { client, amount, status } = req.body;
 
     const [result]: any = await pool.query(
-      'delete from payments where id = ?',
-      [id]
+      'UPDATE payments SET client = ?, amount = ?, status = ? WHERE id = ? AND user_id = ?',
+      [client, amount, status, id, userId]
     );
 
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ error: 'Payment not found' });
-      }
-
-      res.json({ message: 'Payment deleted successfully' });
-
-  } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Database error' });
-  }
-})
-
-app.get('/api/categories', async (req,res) => {
-  try {
-    const[rows] = await pool.query('select * from categories');
-    res.json(rows);
-  }catch (error) {
-    console.error(error);
-    res.status(500).json({error: "Database error"})
-  } 
-})
-
-app.get('/api/categories/:id',async (req,res) => {
-  try {
-    const { id } = req.params;
-    const [rows]: any = await pool.query('Select * from categories where id = ?',[id]);
-
-    if(rows.length === 0) {
-      return res.status(404).json({error: "Payment not found"});
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Payment not found' });
     }
 
-    res.json(rows[0])
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({error: "Database error"})
+    res.json({ message: 'Payment updated successfully' });
+  } catch (err) {
+    console.error('Error updating payment:', err);
+    res.status(500).json({ error: 'Database error' });
   }
-}) 
+});
 
-app.post('/api/categories',async (req,res) => {
+app.delete('/api/payments/:id', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {
+    const { id } = req.params;
+    const userId = req.userId;
+
+    const [result]: any = await pool.query(
+      'DELETE FROM payments WHERE id = ? AND user_id = ?',
+      [id, userId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Payment not found' });
+    }
+
+    res.json({ message: 'Payment deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting payment:', error);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// --- CATEGORIES ROUTES (Protected) ---
+app.get('/api/categories', authenticateToken, async (req: AuthenticatedRequest, res) => {
+  try {
+    const userId = req.userId;
+    const [rows] = await pool.query(
+      'SELECT * FROM categories WHERE user_id = ? ORDER BY id ASC',
+      [userId]
+    );
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching categories:', error);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+app.get('/api/categories/:id', authenticateToken, async (req: AuthenticatedRequest, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.userId;
+    const [rows]: any = await pool.query(
+      'SELECT * FROM categories WHERE id = ? AND user_id = ?',
+      [id, userId]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
+
+    res.json(rows[0]);
+  } catch (error) {
+    console.error('Error fetching category:', error);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+app.post('/api/categories', authenticateToken, async (req: AuthenticatedRequest, res) => {
+  try {
+    const userId = req.userId;
     const { name } = req.body;
 
-    if(!name) {
-      return res.status(500).json({error: "Name has no Value"})
+    if (!name) {
+      return res.status(400).json({ error: 'Name has no Value' });
     }
 
     const [result] = await pool.query<ResultSetHeader>(
-      'insert into categories (name) values(?)',[name]
+      'INSERT INTO categories (user_id, name) VALUES (?, ?)',
+      [userId, name]
     );
 
     res.status(201).json({
       id: result.insertId,
+      user_id: userId,
       name,
     });
-
   } catch (error) {
-      console.error('Database error during categorie insertion:', error);
-      res.status(500).json({ error: 'Database error' });
+    console.error('Database error during category insertion:', error);
+    res.status(500).json({ error: 'Database error' });
   }
-})
+});
 
-app.put('/api/categories/:id',async (req,res) => {
-
+app.put('/api/categories/:id', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {
     const { id } = req.params;
+    const userId = req.userId;
     const { name } = req.body;
 
     const [result]: any = await pool.query(
-      'update categories set name = ? where id = ?',[name, id]
+      'UPDATE categories SET name = ? WHERE id = ? AND user_id = ?',
+      [name, id, userId]
     );
 
-    if(result.affectedRows === 0) {
-        return res.status(404).json({ error: 'Categorie not found' });
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Category not found' });
     }
 
-    res.json({ message: 'Categorie updated successfully' });
+    res.json({ message: 'Category updated successfully' });
   } catch (err) {
-    console.error(err);
+    console.error('Error updating category:', err);
     res.status(500).json({ error: 'Database error' });
   }
+});
 
-})
-
-app.delete('/api/categories/:id',async (req,res) => {
-
+app.delete('/api/categories/:id', authenticateToken, async (req: AuthenticatedRequest, res) => {
   try {
     const { id } = req.params;
+    const userId = req.userId;
 
     const [result]: any = await pool.query(
-    'delete from categories where id = ?',
-    [id]
+      'DELETE FROM categories WHERE id = ? AND user_id = ?',
+      [id, userId]
     );
 
-     if (result.affectedRows === 0) {
-        return res.status(404).json({ error: 'Categorie not found' });
-      }
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Category not found' });
+    }
 
-    res.json({ message: 'Categorie deleted successfully' });
-
+    res.json({ message: 'Category deleted successfully' });
   } catch (err) {
-    console.error(err);
+    console.error('Error deleting category:', err);
     res.status(500).json({ error: 'Database error' });
   }
-
-})
-
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
 });
 
 // --- REGISTER ROUTE ---
@@ -361,7 +373,6 @@ app.post('/api/register', async (req, res) => {
     res.status(500).json({ error: 'Database error during registration' });
   }
 });
-
 
 // --- LOGIN ROUTE ---
 app.post('/api/login', async (req, res) => {
@@ -398,3 +409,8 @@ app.post('/api/login', async (req, res) => {
     res.status(500).json({ error: 'Database error during login' });
   }
 });
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
+export default app;

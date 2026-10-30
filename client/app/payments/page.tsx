@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Payment, Category } from '@/types';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { getAuthHeaders } from '@/lib/api';
 
 export default function PaymentsPage() {
   const router = useRouter();
@@ -15,11 +16,15 @@ export default function PaymentsPage() {
   // Fetch all payments and categories on mount
   useEffect(() => {
     Promise.all([
-      fetch('http://localhost:3001/api/payments').then((res) => {
+      fetch('http://localhost:3001/api/payments', {
+        headers: getAuthHeaders(),
+      }).then((res) => {
         if (!res.ok) throw new Error('Failed to load payments.');
         return res.json();
       }),
-      fetch('http://localhost:3001/api/categories').then((res) => {
+      fetch('http://localhost:3001/api/categories', {
+        headers: getAuthHeaders(),
+      }).then((res) => {
         if (!res.ok) throw new Error('Failed to load categories.');
         return res.json();
       }),
@@ -43,6 +48,7 @@ export default function PaymentsPage() {
     try {
       const response = await fetch(`http://localhost:3001/api/payments/${id}`, {
         method: 'DELETE',
+        headers: getAuthHeaders(),
       });
 
       if (!response.ok) {
